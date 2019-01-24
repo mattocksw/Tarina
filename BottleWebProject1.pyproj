@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>1bda486c-bb97-47af-b36e-b09a148700dc</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <ProjectTypeGuids>{e614c764-6d9e-4607-9337-b7073809a0bd};{1b580a1a-fdb3-4b32-83e1-6407eb2722e6};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <StartupFile>app.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <LaunchProvider>Web launcher</LaunchProvider>
+    <OutputPath>.</OutputPath>
+    <WebBrowserUrl>http://localhost</WebBrowserUrl>
+    <PythonDebugWebServerCommandArguments>--debug $(CommandLineArguments)</PythonDebugWebServerCommandArguments>
+    <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
+    <Name>BottleWebProject1</Name>
+    <RootNamespace>BottleWebProject1</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app.py" />
+    <Compile Include="routes.py" />
+    <Compile Include="helper_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="files\" />
+    <Folder Include="files\default\" />
+    <Folder Include="static\" />
+    <Folder Include="static\axios\" />
+    <Folder Include="static\axios\dist\" />
+    <Folder Include="static\axios\lib\" />
+    <Folder Include="static\axios\lib\adapters\" />
+    <Folder Include="static\axios\lib\cancel\" />
+    <Folder Include="static\axios\lib\core\" />
+    <Folder Include="static\axios\lib\helpers\" />
+    <Folder Include="static\semantic\" />
+    <Folder Include="static\semantic\components\" />
+    <Folder Include="static\semantic\themes\" />
+    <Folder Include="static\semantic\themes\default\" />
+    <Folder Include="static\semantic\themes\default\assets\" />
+    <Folder Include="static\semantic\themes\default\assets\fonts\" />
+    <Folder Include="static\semantic\themes\default\assets\images\" />
+    <Folder Include="static\vue-clickaway\" />
+    <Folder Include="static\vue-clickaway\dist\" />
+    <Folder Include="views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
+    <Content Include="static\axios\CHANGELOG.md" />
+    <Content Include="static\axios\dist\axios.js" />
+    <Content Include="static\axios\dist\axios.map" />
+    <Content Include="static\axios\dist\axios.min.js" />
+    <Content Include="static\axios\dist\axios.min.map" />
+    <Content Include="static\axios\index.d.ts" />
+    <Content Include="static\axios\index.js" />
+    <Content Include="static\axios\lib\adapters\http.js" />
+    <Content Include="static\axios\lib\adapters\README.md" />
+    <Content Include="static\axios\lib\adapters\xhr.js" />
+    <Content Include="static\axios\lib\axios.js" />
+    <Content Include="static\axios\lib\cancel\Cancel.js" />
+    <Content Include="static\axios\lib\cancel\CancelToken.js" />
+    <Content Include="static\axios\lib\cancel\isCancel.js" />
+    <Content Include="static\axios\lib\core\Axios.js" />
+    <Content Include="static\axios\lib\core\createError.js" />
+    <Content Include="static\axios\lib\core\dispatchRequest.js" />
+    <Content Include="static\axios\lib\core\enhanceError.js" />
+    <Content Include="static\axios\lib\core\InterceptorManager.js" />
+    <Content Include="static\axios\lib\core\README.md" />
+    <Content Include="static\axios\lib\core\settle.js" />
+    <Content Include="static\axios\lib\core\transformData.js" />
+    <Content Include="static\axios\lib\defaults.js" />
+    <Content Include="static\axios\lib\helpers\bind.js" />
+    <Content Include="static\axios\lib\helpers\btoa.js" />
+    <Content Include="static\axios\lib\helpers\buildURL.js" />
+    <Content Include="static\axios\lib\helpers\combineURLs.js" />
+    <Content Include="static\axios\lib\helpers\cookies.js" />
+    <Content Include="static\axios\lib\helpers\deprecatedMethod.js" />
+    <Content Include="static\axios\lib\helpers\isAbsoluteURL.js" />
+    <Content Include="static\axios\lib\helpers\isURLSameOrigin.js" />
+    <Content Include="static\axios\lib\helpers\normalizeHeaderName.js" />
+    <Content Include="static\axios\lib\helpers\parseHeaders.js" />
+    <Content Include="static\axios\lib\helpers\README.md" />
+    <Content Include="static\axios\lib\helpers\spread.js" />
+    <Content Include="static\axios\lib\utils.js" />
+    <Content Include="static\axios\LICENSE" />
+    <Content Include="static\axios\package.json" />
+    <Content Include="static\axios\README.md" />
+    <Content Include="static\axios\UPGRADE_GUIDE.md" />
+    <Content Include="static\semantic\.versions" />
+    <Content Include="static\semantic\components\accordion.css" />
+    <Content Include="static\semantic\components\accordion.js" />
+    <Content Include="static\semantic\components\accordion.min.css" />
+    <Content Include="static\semantic\components\accordion.min.js" />
+    <Content Include="static\semantic\components\ad.css" />
+    <Content Include="static\semantic\components\ad.min.css" />
+    <Content Include="static\semantic\components\api.js" />
+    <Content Include="static\semantic\components\api.min.js" />
+    <Content Include="static\semantic\components\breadcrumb.css" />
+    <Content Include="static\semantic\components\breadcrumb.min.css" />
+    <Content Include="static\semantic\components\button.css" />
+    <Content Include="static\semantic\components\button.min.css" />
+    <Content Include="static\semantic\components\card.css" />
+    <Content Include="static\semantic\components\card.min.css" />
+    <Content Include="static\semantic\components\checkbox.css" />
+    <Content Include="static\semantic\components\checkbox.js" />
+    <Content Include="static\semantic\components\checkbox.min.css" />
+    <Content Include="static\semantic\components\checkbox.min.js" />
+    <Content Include="static\semantic\components\colorize.js" />
+    <Content Include="static\semantic\components\colorize.min.js" />
+    <Content Include="static\semantic\components\comment.css" />
+    <Content Include="static\semantic\components\comment.min.css" />
+    <Content Include="static\semantic\components\container.css" />
+    <Content Include="static\semantic\components\container.min.css" />
+    <Content Include="static\semantic\components\dimmer.css" />
+    <Content Include="static\semantic\components\dimmer.js" />
+    <Content Include="static\semantic\components\dimmer.min.css" />
+    <Content Include="static\semantic\components\dimmer.min.js" />
+    <Content Include="static\semantic\components\divider.css" />
+    <Content Include="static\semantic\components\divider.min.css" />
+    <Content Include="static\semantic\components\dropdown.css" />
+    <Content Include="static\semantic\components\dropdown.js" />
+    <Content Include="static\semantic\components\dropdown.min.css" />
+    <Content Include="static\semantic\components\dropdown.min.js" />
+    <Content Include="static\semantic\components\embed.css" />
+    <Content Include="static\semantic\components\embed.js" />
+    <Content Include="static\semantic\components\embed.min.css" />
+    <Content Include="static\semantic\components\embed.min.js" />
+    <Content Include="static\semantic\components\feed.css" />
+    <Content Include="static\semantic\components\feed.min.css" />
+    <Content Include="static\semantic\components\flag.css" />
+    <Content Include="static\semantic\components\flag.min.css" />
+    <Content Include="static\semantic\components\form.css" />
+    <Content Include="static\semantic\components\form.js" />
+    <Content Include="static\semantic\components\form.min.css" />
+    <Content Include="static\semantic\components\form.min.js" />
+    <Content Include="static\semantic\components\grid.css" />
+    <Content Include="static\semantic\components\grid.min.css" />
+    <Content Include="static\semantic\components\header.css" />
+    <Content Include="static\semantic\components\header.min.css" />
+    <Content Include="static\semantic\components\icon.css" />
+    <Content Include="static\semantic\components\icon.min.css" />
+    <Content Include="static\semantic\components\image.css" />
+    <Content Include="static\semantic\components\image.min.css" />
+    <Content Include="static\semantic\components\input.css" />
+    <Content Include="static\semantic\components\input.min.css" />
+    <Content Include="static\semantic\components\item.css" />
+    <Content Include="static\semantic\components\item.min.css" />
+    <Content Include="static\semantic\components\label.css" />
+    <Content Include="static\semantic\components\label.min.css" />
+    <Content Include="static\semantic\components\list.css" />
+    <Content Include="static\semantic\components\list.min.css" />
+    <Content Include="static\semantic\components\loader.css" />
+    <Content Include="static\semantic\components\loader.min.css" />
+    <Content Include="static\semantic\components\menu.css" />
+    <Content Include="static\semantic\components\menu.min.css" />
+    <Content Include="static\semantic\components\message.css" />
+    <Content Include="static\semantic\components\message.min.css" />
+    <Content Include="static\semantic\components\modal.css" />
+    <Content Include="static\semantic\components\modal.js" />
+    <Content Include="static\semantic\components\modal.min.css" />
+    <Content Include="static\semantic\components\modal.min.js" />
+    <Content Include="static\semantic\components\nag.css" />
+    <Content Include="static\semantic\components\nag.js" />
+    <Content Include="static\semantic\components\nag.min.css" />
+    <Content Include="static\semantic\components\nag.min.js" />
+    <Content Include="static\semantic\components\placeholder.css" />
+    <Content Include="static\semantic\components\placeholder.min.css" />
+    <Content Include="static\semantic\components\popup.css" />
+    <Content Include="static\semantic\components\popup.js" />
+    <Content Include="static\semantic\components\popup.min.css" />
+    <Content Include="static\semantic\components\popup.min.js" />
+    <Content Include="static\semantic\components\progress.css" />
+    <Content Include="static\semantic\components\progress.js" />
+    <Content Include="static\semantic\components\progress.min.css" />
+    <Content Include="static\semantic\components\progress.min.js" />
+    <Content Include="static\semantic\components\rail.css" />
+    <Content Include="static\semantic\components\rail.min.css" />
+    <Content Include="static\semantic\components\rating.css" />
+    <Content Include="static\semantic\components\rating.js" />
+    <Content Include="static\semantic\components\rating.min.css" />
+    <Content Include="static\semantic\components\rating.min.js" />
+    <Content Include="static\semantic\components\reset.css" />
+    <Content Include="static\semantic\components\reset.min.css" />
+    <Content Include="static\semantic\components\reveal.css" />
+    <Content Include="static\semantic\components\reveal.min.css" />
+    <Content Include="static\semantic\components\search.css" />
+    <Content Include="static\semantic\components\search.js" />
+    <Content Include="static\semantic\components\search.min.css" />
+    <Content Include="static\semantic\components\search.min.js" />
+    <Content Include="static\semantic\components\segment.css" />
+    <Content Include="static\semantic\components\segment.min.css" />
+    <Content Include="static\semantic\components\shape.css" />
+    <Content Include="static\semantic\components\shape.js" />
+    <Content Include="static\semantic\components\shape.min.css" />
+    <Content Include="static\semantic\components\shape.min.js" />
+    <Content Include="static\semantic\components\sidebar.css" />
+    <Content Include="static\semantic\components\sidebar.js" />
+    <Content Include="static\semantic\components\sidebar.min.css" />
+    <Content Include="static\semantic\components\sidebar.min.js" />
+    <Content Include="static\semantic\components\site.css" />
+    <Content Include="static\semantic\components\site.js" />
+    <Content Include="static\semantic\components\site.min.css" />
+    <Content Include="static\semantic\components\site.min.js" />
+    <Content Include="static\semantic\components\state.js" />
+    <Content Include="static\semantic\components\state.min.js" />
+    <Content Include="static\semantic\components\statistic.css" />
+    <Content Include="static\semantic\components\statistic.min.css" />
+    <Content Include="static\semantic\components\step.css" />
+    <Content Include="static\semantic\components\step.min.css" />
+    <Content Include="static\semantic\components\sticky.css" />
+    <Content Include="static\semantic\components\sticky.js" />
+    <Content Include="static\semantic\components\sticky.min.css" />
+    <Content Include="static\semantic\components\sticky.min.js" />
+    <Content Include="static\semantic\components\tab.css" />
+    <Content Include="static\semantic\components\tab.js" />
+    <Content Include="static\semantic\components\tab.min.css" />
+    <Content Include="static\semantic\components\tab.min.js" />
+    <Content Include="static\semantic\components\table.css" />
+    <Content Include="static\semantic\components\table.min.css" />
+    <Content Include="static\semantic\components\transition.css" />
+    <Content Include="static\semantic\components\transition.js" />
+    <Content Include="static\semantic\components\transition.min.css" />
+    <Content Include="static\semantic\components\transition.min.js" />
+    <Content Include="static\semantic\components\video.css" />
+    <Content Include="static\semantic\components\video.js" />
+    <Content Include="static\semantic\components\video.min.css" />
+    <Content Include="static\semantic\components\video.min.js" />
+    <Content Include="static\semantic\components\visibility.js" />
+    <Content Include="static\semantic\components\visibility.min.js" />
+    <Content Include="static\semantic\components\visit.js" />
+    <Content Include="static\semantic\components\visit.min.js" />
+    <Content Include="static\semantic\LICENSE" />
+    <Content Include="static\semantic\package.js" />
+    <Content Include="static\semantic\package.json" />
+    <Content Include="static\semantic\README.md" />
+    <Content Include="static\semantic\semantic.css" />
+    <Content Include="static\semantic\semantic.js" />
+    <Content Include="static\semantic\semantic.min.css" />
+    <Content Include="static\semantic\semantic.min.js" />
+    <Content Include="static\semantic\themes\default\assets\fonts\brand-icons.eot" />
+    <Content Include="static\semantic\themes\default\assets\fonts\brand-icons.svg" />
+    <Content Include="static\semantic\themes\default\assets\fonts\brand-icons.ttf" />
+    <Content Include="static\semantic\themes\default\assets\fonts\brand-icons.woff" />
+    <Content Include="static\semantic\themes\default\assets\fonts\brand-icons.woff2" />
+    <Content Include="static\semantic\themes\default\assets\fonts\icons.eot" />
+    <Content Include="static\semantic\themes\default\assets\fonts\icons.otf" />
+    <Content Include="static\semantic\themes\default\assets\fonts\icons.svg" />
+    <Content Include="static\semantic\themes\default\assets\fonts\icons.ttf" />
+    <Content Include="static\semantic\themes\default\assets\fonts\icons.woff" />
+    <Content Include="static\semantic\themes\default\assets\fonts\icons.woff2" />
+    <Content Include="static\semantic\themes\default\assets\fonts\outline-icons.eot" />
+    <Content Include="static\semantic\themes\default\assets\fonts\outline-icons.svg" />
+    <Content Include="static\semantic\themes\default\assets\fonts\outline-icons.ttf" />
+    <Content Include="static\semantic\themes\default\assets\fonts\outline-icons.woff" />
+    <Content Include="static\semantic\themes\default\assets\fonts\outline-icons.woff2" />
+    <Content Include="static\semantic\themes\default\assets\images\flags.png" />
+    <Content Include="static\tinymce-vue.min.js" />
+    <Content Include="static\vue-clickaway\.eslintrc" />
+    <Content Include="static\vue-clickaway\build.js" />
+    <Content Include="static\vue-clickaway\CHANGELOG.md" />
+    <Content Include="static\vue-clickaway\dist\vue-clickaway.common.js" />
+    <Content Include="static\vue-clickaway\dist\vue-clickaway.js" />
+    <Content Include="static\vue-clickaway\dist\vue-clickaway.min.js" />
+    <Content Include="static\vue-clickaway\index.js" />
+    <Content Include="static\vue-clickaway\LICENSE" />
+    <Content Include="static\vue-clickaway\package.json" />
+    <Content Include="static\vue-clickaway\README.md" />
+    <Content Include="static\vue.js" />
+    <Content Include="static\vue.min.js" />
+    <Content Include="views\layout.tpl" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Web.targets" />
+  <!-- Specify pre- and post-build commands in the BeforeBuild and 
+       AfterBuild targets below. -->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <AutoAssignPort>True</AutoAssignPort>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
