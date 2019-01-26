@@ -79,7 +79,6 @@ def new_item():
 
         #add item
         random_name = get_new_name(get_values(item_map), 10)
-        print(category_path + item_names_file)
         with open(category_path + item_names_file, 'a') as file:
             file.write("{} {}\n".format(random_name, item_name))     
 
@@ -117,11 +116,11 @@ def get_item():
         category_path = get_path_to_items(story_name, category)
         item_map = get_file_map(category_path + item_names_file)
 
-        #get item contents
+        #get item folder
         item = item_map[item_name]
         content = ''
         try:
-            with open(item_path + '/' + get_folder_from_name(resource_names,filenames, item_name), 'r') as file:
+            with open(category_path + '/' + item, 'r') as file:
                 content = file.read()
         except:
             pass
@@ -133,7 +132,32 @@ def get_item():
 
 @route('/save', method='POST')
 def save_item():
-    pass
+    try:
+        #get value from post
+        story_name = request.json["story_name"]
+        category = request.json["category"]
+        item_name = request.json["item_name"]
+        content = request.json["content"]
+       
+        #get item names
+        category_path = get_path_to_items(story_name, category)
+        item_map = get_file_map(category_path + item_names_file)
+
+        #get item file
+        item = item_map[item_name]
+
+        try:
+            with open(category_path + '/' + item, 'w') as file:
+                file.write(content)
+        except:
+            resp = json.dumps(['error : failed to save'])
+            return HTTPResponse(status=500, body=resp)
+
+        theBody = json.dumps(content)
+        return HTTPResponse(status=200, body=theBody)
+    except:
+        resp = json.dumps(['error : failed to get story'])
+        return HTTPResponse(status=500, body=resp)
 
 @route('/delete', method='POST')
 def delete_story():

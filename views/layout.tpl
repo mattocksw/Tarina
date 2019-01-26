@@ -19,9 +19,9 @@
 </style>
 
 </head>
-<body>
+<body style="background-color:Gainsboro;">
 
-<div id="app" class="ui container">
+<div id="app" class="ui container" style="background-color:Gainsboro;">
 
   <div class="ui center aligned basic segment">
 	<div class="ui text">
@@ -111,21 +111,25 @@
 
   <!-- Editors -->
 
-  <div v-for="(e, index) in editors" class="ui segment">
+  <div v-for="(e, index) in editors" class="ui container">
     <div class="ui top attached menu">
       <a class="item">[[e]]</a>
     </div>
-    <div class="ui container">
+    <form class="ui container">
+		<input type="hidden" name="editor_name" :value="[[e]]"> 
 		<editor v-model="content[index]" api-key="API_KEY" :init=
 		"{
-		menubar:false, 
-		plugins: 'wordcount',
+		menubar: false,
+		plugins: ['wordcount','save'],
+		toolbar: 'save',
+		save_onsavecallback: save_editor_content,
 		height : '50vh',
 		resize: true,
 		}"
 		>
 		</editor>
-    </div>
+    </form>
+	<div class="ui divider"></div>
   </div>
 
   <div v-if="editors.length" class="ui center aligned container">
@@ -182,6 +186,29 @@ var app = new Vue({
   },
 
   methods: {
+	save_editor_content: function(event)
+	{
+		console.log(event.formElement[0].value)
+		content_index = this.editors.indexOf(event.formElement[0].value)
+
+		console.log(this.content[content_index])
+		axios.post('/save', 
+		{
+			story_name: title,
+			category: 'chapters',
+			item_name: event.formElement[0].value,
+			content: this.content[content_index],
+		})
+		.then(response => 
+		{
+			console.log("save succesful")
+		})
+		.catch(error => 
+		{
+			alert(error.response.data)
+		})
+	},
+
 	click_new_story_root : function(event)
 	{
 		this.new_story_modal_is_active = !this.new_story_modal_is_active
