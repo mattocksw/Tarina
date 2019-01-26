@@ -44,7 +44,6 @@
   </div>
 
   <!-- Modals-->
-
   <div v-on-clickaway="click_outside_new_story_modal" class="ui modal" v-bind:class="{ active: new_story_modal_is_active }" >
   
 	<div class="header">Create a new story</div>
@@ -103,22 +102,21 @@
   <!-- Items -->
 
   <div class="ui divided selection list">
-    <div class="item">
+    <div v-for="chapter in chapters" class="item">
 	  <div class="content">
-	    <div v-for="chapter in chapters" v-on:click="click_select_chapter_item" class="header">[[chapter]]</div>
+	    <div v-on:click="click_select_chapter_item" class="header">[[chapter]]</div>
 	  </div>
 	</div>
   </div>
 
   <!-- Editors -->
 
-  <div v-if="show_editor" class="ui segment">
+  <div v-for="(e, index) in editors" class="ui segment">
     <div class="ui top attached menu">
-      <a class="item">Chapter</a>
-      <a class="item">Number</a>
+      <a class="item">[[e]]</a>
     </div>
     <div class="ui container">
-		<editor v-model="content" api-key="API_KEY" :init=
+		<editor v-model="content[index]" api-key="API_KEY" :init=
 		"{
 		menubar:false, 
 		plugins: 'wordcount',
@@ -130,7 +128,7 @@
     </div>
   </div>
 
-  <div v-if="show_editor" class="ui center aligned container">
+  <div v-if="editors.length" class="ui center aligned container">
 	<button class="ui icon button" style="padding: 0; border: none; background: none;">
 	  <i class="plus square outline massive icon"></i>
 	</button>
@@ -172,7 +170,7 @@ var app = new Vue({
 	],
 	chapters : [],
 	story_selected : false,
-	show_editor: false,
+	editors: [],
     story_title : "Name of the story",
 	new_story_modal_is_active : false,
 	new_chapter_modal_is_active : false,
@@ -180,7 +178,7 @@ var app = new Vue({
 	errors : [],
 	story_name : null,
 	chapter_name : null,
-	content: "Some text",
+	content: [],
   },
 
   methods: {
@@ -205,6 +203,8 @@ var app = new Vue({
 		.then(response => 
 		{
 			this.story_title = title
+			this.editors = []
+			this. content = []
 			this.story_selected = true
 			this.chapters = response.data
 		})
@@ -220,12 +220,16 @@ var app = new Vue({
 		{
 			story_name: this.story_title,
 			category: 'chapters',
-			item_name: chapter_name,
+			item_name: chapter_name
 		})
 		.then(response => 
 		{
-			this.show_editor = true
-			this.content = response.data
+			if(this.editors.includes(chapter_name) == false)
+			{	
+
+				this.editors.push(chapter_name)
+				this.content.push(response.data)
+			}
 		})
 		.catch(error => 
 		{
@@ -253,6 +257,9 @@ var app = new Vue({
 			this.story_selected = true
 			this.story_name = null
 			this.chapters = []
+
+			this.editors = []
+			this.content = []
 		})
 		.catch(error => 
 		{
@@ -272,7 +279,13 @@ var app = new Vue({
 			this.new_chapter_modal_is_active = false
 			this.errors = []
 			this.chapters.push(this.chapter_name)
+
+			this.editors.push(this.chapter_name)
+			this.content.push("")
+
 			this.chapter_name = null
+
+			
 		})
 		.catch(error => 
 		{
@@ -293,6 +306,9 @@ var app = new Vue({
 			this.story_title = "Name of the story"
 			this.story_selected = false
 			this.chapters = []
+
+			this.editors = []
+			this.content = []
 		})
 	},
 
