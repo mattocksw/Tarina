@@ -23,10 +23,10 @@ if __name__ == '__main__':
     PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
     STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static').replace('\\', '/')
     HOST = os.environ.get('SERVER_HOST', 'localhost')
-    try:
-        PORT = int(os.environ.get('SERVER_PORT', '5555'))
-    except ValueError:
-        PORT = 5555
+    #try:
+    #    PORT = int(os.environ.get('SERVER_PORT', '8080'))
+    #except ValueError:
+    #    PORT = 8080
 
     @bottle.route('/static/<filepath:path>')
     def server_static(filepath):
@@ -36,4 +36,5 @@ if __name__ == '__main__':
         return bottle.static_file(filepath, root=STATIC_ROOT)
 
     # Starts a local test server.
-    bottle.run(server='wsgiref', host=HOST, port=PORT)
+    #bottle.run(server='wsgiref', host=HOST, port=PORT)
+    bottle.run(host='localhost', port=8181)

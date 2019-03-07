@@ -14,7 +14,7 @@ stories_file = "story_names.txt"
 categories_file = "category_names.txt"
 item_names_file = "item_names.txt"
 
-default_categories = ["chapters", "characters", "places"]
+default_categories = ["Chapters", "Characters", "Locations"]
 
 #return dictionary with name as key and file/folder as value
 def get_file_map(path_to_file):
@@ -52,6 +52,26 @@ def create_default_categories(story_folder):
         for category in default_categories:
             os.mkdir('files/default/' + story_folder + '/' + category)
             file.write("{} {}\n".format(category, category))
+
+def get_all_content_names(story_name):
+    content = {}
+
+    stories = get_file_map(default_path + stories_file)
+    story_folder = stories[story_name]
+
+    categories = get_file_map(default_path + story_folder + '/' + categories_file)
+    for category, category_folder in categories.items():
+        #get item names from each category and put them in dictionary under category name
+        try:
+            items = get_file_map(default_path + story_folder + '/' + category_folder + '/' + item_names_file)
+            content[category] = get_keys(items)
+        except:
+            pass
+    return content
+
+def get_story_folder(story_name):
+    story_map = get_file_map(default_path + stories_file)
+    return story_map[story_name]
 
 def get_path_to_items(story_name, category):
     #get story folder
