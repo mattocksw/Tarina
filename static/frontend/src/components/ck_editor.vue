@@ -1,13 +1,21 @@
+<style scoped>
+    .hurray /deep/ .ck-editor__editable {
+        max-height: var(--h);
+    }
+</style>
+
+
 <template>
-    <div>
+
+    <div class="hurray" :style="cssProps">
         <ckeditor :editor="editor" v-model="editorData" :config="editorConfig" @ready="onEditorReady"></ckeditor>
-        <div class="ui bottom attached segment" style="border-top: none;">
+        <div class="ui bottom attached segment" style="border: none; padding-bottom: 0;">
             <div class="ui two column stackable center aligned grid">
                 <div class="left aligned column">
                     {{status_bar_left}}
                 </div>
                 <div class="right aligned column">
-                    {{status_bar_right}}
+                    <i @mousedown="start_resize" class="ui expand arrows alternate icon"></i>
                 </div>
             </div>
         </div>
@@ -47,8 +55,11 @@
                     required: true
                 },
             },
+            
             data: function () {
                 return {
+                    editor_height: 200,
+                    resizing: false,
                     status_bar_left: "",
                     status_bar_right: "",
                     editor: ClassicEditor,
@@ -85,6 +96,13 @@
                     }
                 }
             },
+            computed: {
+                cssProps() {
+                    return {
+                        '--h': this.editor_height + "px",
+                    }
+                }
+            },
             created: function () {
                 //get item content from server
                 this.axios.post('/get_item', {
@@ -100,11 +118,27 @@
                     })
                
             },
+            mounted: function () {
+                window.addEventListener('mouseup', this.stop_resize)
+                window.addEventListener('mousemove', this.resize_event)
+            },
             methods:
             {
+                start_resize: function () {
+                    this.resizing = true
+                },
+                stop_resize: function () {
+                    this.resizing = false
+                },
+                resize_event: function (event) {
+                    if (this.resizing) {
+                        this.editor_height += event.movementY
+                    }
+                },
                 onEditorReady: function (editor) {
                     this.displayStatus(editor)
-                },
+
+                },                
                 displayStatus: function (editor) {
                     //display save status
                     const pendingActions = editor.plugins._plugins.get('PendingActions')

@@ -1,7 +1,8 @@
+
 <template>
     <div v-if="editors.length" class="ui container">
         <div v-for="editor in editors">
-            <div class="ui top attached large block header">
+            <div class="ui top attached large block header" style="border-bottom: none;">
                 <div class="ui two column stackable center aligned grid">
                     <div class="left aligned column">
                         {{editor.category}}/{{editor.item}}
@@ -37,6 +38,11 @@
             methods: {
                 close_editor: function (editor) {
                     this.$store.commit('delete_editor', { category: editor.category, item: editor.item })
+                }
+            },
+            data: function () {
+                return {
+                    heigth: 100,
                 }
             }
     }

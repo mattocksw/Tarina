@@ -6,6 +6,7 @@
                 <i class="arrow left icon"></i>
             </a>
             <a v-on:click="click_new_item" class="item">New item</a>
+            <a v-on:click="toggle_modify_categories" v-if="show_items === false" class="item">{{toggle_text}}</a>
             <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete item</a>
             <i v-if="message.length" class="ui borderless item"> {{message}} </i>
             <a class="right item">
@@ -28,7 +29,7 @@
             <div v-else class="ui divided selection list">
                 <div v-for="category in categories" class="item">
                     <div class="content">
-                        <div v-on:click="click_category(category)" class="ui header">{{category}}</div>
+                        <div v-on:click="click_category(category)" v-bind:class="{blue: category === selected_item}" class="ui header">{{category}}</div>
                     </div>
                 </div>
             </div>
@@ -49,6 +50,7 @@
             story_selected: 'story_selected',
             content: 'content',
             story_title: 'story_title',
+            //sort in ascending order
             categories: function () {
                 function compare(a, b) {
                     var au = a.toUpperCase()
@@ -80,10 +82,13 @@
                 drag_timeout: null,
                 message: "",
                 show_loader: false,
+                modify_categories: false,
+                toggle_text: "Modify",
             }
         },
         watch: {
             story_title() {
+                //reset all fields if title changes
                 this.current_menu = "Categories"
                 this.show_items= false
                 this.items = []
@@ -93,23 +98,30 @@
                 this.drag_timeout = null
                 this.message = ""
                 this.show_loader = false
+                this.modify_categories = false
+                this.toggle_text = "Modify"
                 this.$store.commit('delete_all_editors')
-            },
-            selected_item() {
-                if (this.selected_item)
-                    this.$store.commit('add_editor', { category: this.current_menu, item: this.selected_item })
             },
         },
         methods:
         {
             click_category: function (category)
             {
-                this.items = this.content[category]
-                this.show_items = true
-                this.current_menu = category
+                //if modify is disabled, open
+                if (this.modify_categories === false) {
+                    this.items = this.content[category]
+                    this.show_items = true
+                    this.current_menu = category
+                }
+                else {
+                    this.selected_item = category
+                }
             },
             click_item: function (item) {
                 this.selected_item = item
+                //open editor
+                if (this.selected_item && this.current_menu !== "Categories")
+                    this.$store.commit('add_editor', { category: this.current_menu, item: this.selected_item })
             },
             click_back: function ()
             {
@@ -153,6 +165,9 @@
                                                     this.$store.commit('add_item', { category: this.current_menu, item: this.item_name })
                                                     this.items = this.content[this.current_menu]
                                                     this.selected_item = this.item_name
+                                                    //open editor
+                                                    if (this.selected_item && this.current_menu !== "Categories")
+                                                        this.$store.commit('add_editor', { category: this.current_menu, item: this.selected_item })
                                                 }                                    
                                                 this.item_name = null
                                                 this.$modal.hide('add_item_dialog')
@@ -174,7 +189,7 @@
                 this.$modal.show('delete_item_dialog',
                     {
                         title: 'Delete ' + this.selected_item,
-                        text: 'Are you sure you want to delete' + this.selected_item,
+                        text: 'Are you sure you want to delete ' + this.selected_item,
                         buttons:
                             [
                                 {
@@ -200,8 +215,9 @@
                                                 }
                                                 else {                                                    
                                                     this.$store.commit('delete_item', { category: this.current_menu, item: this.selected_item })
+                                                    this.$store.commit('delete_editor', { category: this.current_menu, item: this.selected_item })
                                                     this.items = this.content[this.current_menu]
-                                                    this.selected_item = null
+                                                    this.selected_item = null                                                    
                                                 }
                                                 this.$modal.hide('delete_item_dialog')
 
@@ -264,6 +280,19 @@
                         this.message = "Reloading contents failed"
                     })
             },
+            toggle_modify_categories: function () {
+                if (this.modify_categories) {
+                    this.modify_categories = false
+                    this.toggle_text = "Modify"
+                    this.selected_item = ""
+                }
+                else {
+                    this.modify_categories = true
+                    this.toggle_text = "Finish"
+                    if(this.categories.length > 0)
+                        this.selected_item = this.categories[0]
+                }
+            }
         }
 
 }
