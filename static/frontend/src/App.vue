@@ -3,15 +3,17 @@
 
         <div class="ui center aligned basic segment">
             <div class="ui text">
-                <h1 class="ui header"> {{story_title}} </h1>
+                <h1 id="title" class="ui header"> {{story_title}} </h1>
             </div>
         </div>
 
         <mainmenu />
 
+        <item_selection />
+
         <editors />
 
-        <item_selection />
+
 
 
 

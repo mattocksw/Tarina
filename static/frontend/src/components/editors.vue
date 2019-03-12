@@ -1,6 +1,7 @@
 
 <template>
     <div v-if="editors.length" class="ui container">
+        <div class="ui hidden divider"></div>
         <div v-for="editor in editors">
             <div class="ui top attached large block header" style="border-bottom: none;">
                 <div class="ui two column stackable center aligned grid">
@@ -12,9 +13,9 @@
                             <i v-on:click="close_editor(editor)" class="ui large close icon"></i>
                         </a>
                     </div>
-                </div>               
+                </div>
             </div>
-            <div class="ui bottom attached segment">
+            <div class="ui bottom attached segment" style="text-align: left;">
                 <ck_editor v-bind:save_target="editor"> </ck_editor>
             </div>
             <div class="ui hidden divider"></div>

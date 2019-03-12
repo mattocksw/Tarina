@@ -26,14 +26,33 @@
     import Vue from 'vue'
 
     import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor';
-
     import EssentialsPlugin from '@ckeditor/ckeditor5-essentials/src/essentials';
+    import AutoformatPlugin from '@ckeditor/ckeditor5-autoformat/src/autoformat';
     import BoldPlugin from '@ckeditor/ckeditor5-basic-styles/src/bold';
     import ItalicPlugin from '@ckeditor/ckeditor5-basic-styles/src/italic';
+    import UnderlinePlugin from '@ckeditor/ckeditor5-basic-styles/src/underline';
+    import StrikethroughPlugin from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
+    import CodePlugin from '@ckeditor/ckeditor5-basic-styles/src/code';
+    import SubscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/subscript';
+    import SuperscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/superscript';
+    import HeadingPlugin from '@ckeditor/ckeditor5-heading/src/heading';
+    import ImagePlugin from '@ckeditor/ckeditor5-image/src/image';
+    import ImageCaptionPlugin from '@ckeditor/ckeditor5-image/src/imagecaption';
+    import ImageStylePlugin from '@ckeditor/ckeditor5-image/src/imagestyle';
+    import ImageToolbarPlugin from '@ckeditor/ckeditor5-image/src/imagetoolbar';
+    import ImageUploadPlugin from '@ckeditor/ckeditor5-image/src/imageupload';
     import LinkPlugin from '@ckeditor/ckeditor5-link/src/link';
+    import ListPlugin from '@ckeditor/ckeditor5-list/src/list';
     import ParagraphPlugin from '@ckeditor/ckeditor5-paragraph/src/paragraph';
     import Autosave from "@ckeditor/ckeditor5-autosave/src/autosave"
     import PendingActions from '@ckeditor/ckeditor5-core/src/pendingactions';
+    import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
+    import FontPlugin from '@ckeditor/ckeditor5-font/src/font';
+    import HighlightPlugin from '@ckeditor/ckeditor5-highlight/src/highlight';
+    import PasteFromOfficePlugin from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
+    import TablePlugin from '@ckeditor/ckeditor5-table/src/table';
+    import TableToolbarPlugin from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+    import SimpleUploadImagePlugin from '@samhammer/ckeditor5-simple-image-upload-plugin/src/simple-upload-image-plugin'
 
 
     function saveData(data, story, target) {
@@ -43,6 +62,26 @@
                 category: target.category,
                 item_name: target.item,
                 content: data,
+            })
+    }
+
+    function reverse_escape_html(str) {
+        var textArea = document.createElement('textarea');
+        textArea.innerHTML = str;
+        return textArea.value;
+    }
+
+    function saveImage(data) {
+        var story = reverse_escape_html(document.getElementById('title').innerText);        
+        let formData = new FormData();
+        formData.append("image", data);
+        formData.append("story_name", story);
+        return Vue.prototype.axios.post('/save_image',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             })
     }
 
@@ -58,7 +97,7 @@
             
             data: function () {
                 return {
-                    editor_height: 200,
+                    editor_height: 500,
                     resizing: false,
                     status_bar_left: "",
                     status_bar_right: "",
@@ -68,22 +107,95 @@
                     {
                         plugins: [
                             EssentialsPlugin,
+                            AutoformatPlugin,
                             BoldPlugin,
                             ItalicPlugin,
+                            UnderlinePlugin,
+                            StrikethroughPlugin,
+                            CodePlugin,
+                            SubscriptPlugin,
+                            SuperscriptPlugin,
+                            HeadingPlugin,
+                            ImagePlugin,
+                            ImageCaptionPlugin,
+                            ImageStylePlugin,
+                            ImageToolbarPlugin,
+                            ImageUploadPlugin,
                             LinkPlugin,
+                            ListPlugin,
                             ParagraphPlugin,
                             Autosave,
-                            PendingActions
+                            PendingActions,
+                            Alignment,
+                            FontPlugin,
+                            HighlightPlugin,
+                            PasteFromOfficePlugin,
+                            TablePlugin,
+                            TableToolbarPlugin,
+                            SimpleUploadImagePlugin
                         ],
 
                         toolbar:
                         {
                             items: [
-                                'bold',
-                                'italic',
+                                'heading',
+                                '|',
+                                'fontSize', 'fontFamily',                                
+                                'alignment:left', 'alignment:right', 'alignment:center', 'alignment:justify',
+                                'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript',
+                                'highlight',
                                 'link',
+                                'bulletedList',
+                                'numberedList',
+                                'insertTable',
+                                'imageUpload',
                                 'undo',
                                 'redo'
+                            ]
+                        },
+                        table: {
+                            contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+                        },
+                        simpleImageUpload: {                            
+                            //image upload
+                            onUpload: file => {
+                                return saveImage(file).then(response => {
+                                    var address = response.data
+                                    return Promise.resolve('/' + address.story_folder + '/' + address.file_name);
+                                })
+                            },
+                        },
+                        image: {
+                            toolbar: [
+                                'imageStyle:full',
+                                'imageStyle:side',
+                                'imageStyle:alignLeft',
+                                'imageStyle:alignCenter',
+                                'imageStyle:alignRight',
+                                '|',
+                                'imageTextAlternative'
+                            ]
+                        },
+                        fontSize: {
+                            options: [
+                                9,
+                                11,
+                                13,
+                                'default',
+                                17,
+                                19,
+                                21
+                            ]
+                        },
+                        highlight: {
+                            options:
+                            [                                
+                                { model: 'yellowMarker', class: 'marker-yellow', title: 'Yellow Marker', color: 'var(--ck-highlight-marker-yellow)', type: 'marker' },
+                                { model: 'greenMarker', class: 'marker-green', title: 'Green marker', color: 'var(--ck-highlight-marker-green)', type: 'marker' },
+                                { model: 'pinkMarker', class: 'marker-pink', title: 'Pink marker', color: 'var(--ck-highlight-marker-pink)', type: 'marker' },
+                                { model: 'blueMarker', class: 'marker-blue', title: 'Blue marker', color: 'var(--ck-highlight-marker-blue)', type: 'marker' },                                
+                                { model: 'redPen', class: 'pen-red', title: 'Red pen', color: 'var(--ck-highlight-pen-red)', type: 'pen' },
+                                { model: 'greenPen', class: 'pen-green', title: 'Green pen', color: 'var(--ck-highlight-pen-green)', type: 'pen' }                             
                             ]
                         },
                         autosave: {

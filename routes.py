@@ -239,6 +239,54 @@ def reorder_items():
         resp = json.dumps(['error : failed to save item order'])
         return HTTPResponse(status=500, body=resp)
 
+#return image
+@route('/<story_folder>/<filename>', method='GET')
+def get_image(story_folder, filename):
+    try: 
+        #validate storyname
+        story_map = get_file_map(default_path + stories_file)
+        if story_folder not in get_values(story_map):
+            resp = json.dumps({'error': "story not found"})
+            return HTTPResponse(status=404, body=resp)
+
+        #get extension for filename
+        for file in os.listdir(default_path + story_folder):
+            if file.startswith(filename):
+                valid_path = default_path + story_folder + '/' + file
+                with open(valid_path, "rb") as f:
+                    return HTTPResponse(f.read(), content_type="image/png")
+        resp = json.dumps({'error': "image not found"})
+        return HTTPResponse(status=404, body=resp)
+    except:
+        resp = json.dumps({'error': "image not found"})
+        return HTTPResponse(status=404, body=resp)
+
+@route('/save_image', method='POST')
+def save_image():
+    try: 
+        #get image
+        file = request.files.get('image')
+        story_name = request.forms.get("story_name")        
+        name, ext = os.path.splitext(file.filename)
+        if ext not in ('.png', '.jpg', '.jpeg'):
+            resp = json.dumps({'story_folder': 'filename', 'file_name': 'filename'})
+            return HTTPResponse(status=500, body=resp)
+
+        #get save path
+        story_folder = get_story_folder(story_name)
+        
+        random_name = get_new_name(os.listdir(default_path + story_folder), 11)
+        save_path = default_path + story_folder + '/' + random_name + ext
+
+        #save file
+        file.save(save_path)
+
+        resp = json.dumps({'story_folder': story_folder, 'file_name': random_name})
+        return HTTPResponse(status=200, body=resp)
+    except:
+        resp = json.dumps({'story_folder': 'name', 'file_name': 'filename'})
+        return HTTPResponse(status=500, body=resp)
+
 @route('/save', method='POST')
 def save_item():
     try:
