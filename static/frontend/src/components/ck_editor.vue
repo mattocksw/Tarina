@@ -250,7 +250,7 @@
                 },
                 onEditorReady: function (editor) {
                     this.displayStatus(editor)
-                    this.listenKeyup(editor)
+                    this.listenKeyup(editor)                   
                     this.editor_object = editor
                     
                 },                
@@ -269,22 +269,28 @@
                 //used for autolinking
                 listenKeyup: function (editor) {
                     editor.editing.view.document.on('keyup', (evt, data) => {
-                        //if key is enter or space break word and check if item exists
+                        //if there is an existing link, remove it (not affected by arrow keys)
+                        if ([37, 38, 39, 40].includes(data.keyCode) === false)
+                        {
+                            editor.execute('unlink')
+                        }
+
+                        //if key is enter or space check if item exists
                         if ([13, 32].includes(data.keyCode)) {
                             editor.model.change(writer => {
+
                                 //get the position at the cursor
-                                var insertPosition = editor.model.document.selection.getFirstPosition();
-                                console.log(insertPosition)
+                                var insertPosition = editor.model.document.selection.getFirstPosition();                                
+                                
                                 //get cursor position as offset from topleft [element from top (0...n), letter offset (1...n)]
                                 let pos = insertPosition.path
-
                                 //if keyup was enter, move to above element
                                 if(data.keyCode === 13)
                                     pos[0] = pos[0] - 1
 
-                                //get current element as text
+                                //get current paragraph element as text
                                 let p = data.domTarget.children[pos[0]].innerText                                
-
+                                
                                 //if just new line -> exit
                                 if(p.length === 1)
                                     return
@@ -292,22 +298,25 @@
                                 //if enter, move to end of line
                                 if (data.keyCode === 13)
                                     pos[1] = p.length
-                                //if space, make index from offset (enter has end of line as final character so no need)
+                                //if space, substract it from offset (enter has end of line as final character so no need)
                                 if (data.keyCode === 32)
                                     pos[1] = pos[1] - 1
 
                                 //move to start of the word                               
-                                let i = pos[1]
+                                let i = pos[1] - 1 //from offset to index
                                 while (i >= 0) {
                                     if (p[i] === ' ') {
                                         break
                                     }
                                     i--
-                                }
+                                }                     
 
-                                //get word
+                                //get word (from index back to offset)
                                 let word = p.substr(i + 1, pos[1])
                                 console.log(word)
+
+                                var start = [pos[0], pos[1] - word.length]
+                                var end = pos                              
 
                                 //check if word exists in content
                                 var matches = []
@@ -317,8 +326,9 @@
                                     let items = store.state.content[c]
                                     for (var it = 0; it < items.length; it++) {
                                         if (items[it].length <= word.length && items[it].length >= current_longest_word && word.startsWith(items[it])) {
-                                            //keep item that is closest to the typed word in length and shorter than typed word
+                                            //keep items that are closest to the typed word in length and shorter than typed word
                                             if (items[it].length > current_longest_word) {
+                                                //collect items that are same length
                                                 matches = []
                                                 match_categories = []
                                                 matches.push(items[it])
@@ -337,19 +347,24 @@
                                     //keep one of the matches and hope it's the right one
                                     let linked_item = matches[0]
                                     let linked_category = match_categories[0]
+                                   
+                                    var range = editor.model.schema.getNearestSelectionRange(insertPosition)
+                                    range.start.path = start
+                                    range.end.path = end
+                                    writer.setSelection(range);
+                                    editor.execute('link', linked_category + "/" + linked_item)
 
-                                    //get range over the word that is replaced
-                                    var range = editor.model.schema.getNearestSelectionRange(insertPosition)                                    
-                                    pos[1] -= word.length
-                                    range.start.path = pos
-                                    range.end.path = [pos[0], pos[1] + linked_item.length]
-
-                                    writer.remove(range)
-                                    
-                                    insertPosition.path = pos                                                                       
-
-                                    //insert text
-                                    writer.insertText(linked_item, { linkHref: linked_category + "/" + linked_item }, insertPosition);
+                                    //clear selection
+                                    //if keyup was enter, move to below element
+                                    if (data.keyCode === 13) {
+                                        range.start.path = [end[0] + 1, 0]
+                                        range.end.path = range.start.path
+                                    }
+                                    else {
+                                        range.start.path = [end[0], end[1] + 1]
+                                        range.end.path = range.start.path
+                                    }
+                                    writer.setSelection(range);
                                 }
                                 
                             })
