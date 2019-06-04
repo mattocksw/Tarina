@@ -3,18 +3,13 @@
         Select story
         <i class="dropdown icon"></i>
         <div class="menu" style="overflow:auto; max-height: 50vh; max-width: 50vw;">
-            <a v-for="title in sortedTitles" v-on:click="click_select_story_item" class="item">{{title}}</a>
+            <a v-for="title in sortedTitles" v-on:click="click_select_story_item(title)" class="item">{{title}}</a>
             <a v-if="titles.length === 0" class="red item">Empty</a>
         </div>
     </div>
 </template>
 
 <script>
-    function reverse_escape_html(str) {
-        var textArea = document.createElement('textarea');
-        textArea.innerHTML = str;
-        return textArea.value;
-    }
 
     import Vue from 'vue'
     export default
@@ -52,8 +47,7 @@
             },
             methods:
             {
-                click_select_story_item: function (event) {
-                    var title = reverse_escape_html(event.srcElement.innerHTML)
+                click_select_story_item: function (title) {
                     this.axios.post('get_items',
                         {
                             story_name: title,

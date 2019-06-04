@@ -7,7 +7,7 @@
 
 <template>
 
-    <div class="hurray" :style="cssProps">
+    <div @click="handle_links" class="hurray" :style="cssProps">
         <ckeditor :editor="editor" v-model="editorData" :config="editorConfig" @ready="onEditorReady"></ckeditor>
         <div class="ui bottom attached segment" style="border: none; padding-bottom: 0;">
             <div class="ui two column stackable center aligned grid">
@@ -24,6 +24,7 @@
 
 <script>
     import Vue from 'vue'
+    import store from '../store'
 
     import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor';
     import EssentialsPlugin from '@ckeditor/ckeditor5-essentials/src/essentials';
@@ -65,14 +66,8 @@
             })
     }
 
-    function reverse_escape_html(str) {
-        var textArea = document.createElement('textarea');
-        textArea.innerHTML = str;
-        return textArea.value;
-    }
-
     function saveImage(data) {
-        var story = reverse_escape_html(document.getElementById('title').innerText);        
+        var story = store.state.story_title        
         let formData = new FormData();
         formData.append("image", data);
         formData.append("story_name", story);
@@ -97,6 +92,7 @@
             
             data: function () {
                 return {
+                    editor_object: null,
                     editor_height: 500,
                     resizing: false,
                     status_bar_left: "",
@@ -171,9 +167,13 @@
                                 'imageStyle:side',
                                 'imageStyle:alignLeft',
                                 'imageStyle:alignCenter',
-                                'imageStyle:alignRight',
-                                '|',
-                                'imageTextAlternative'
+                                'imageStyle:alignRight',                                
+                            ],
+                            styles: [
+                                'full',
+                                'alignLeft',
+                                'alignCenter',
+                                'alignRight'
                             ]
                         },
                         fontSize: {
@@ -213,7 +213,7 @@
                     return {
                         '--h': this.editor_height + "px",
                     }
-                }
+                },
             },
             created: function () {
                 //get item content from server
@@ -237,6 +237,7 @@
             methods:
             {
                 start_resize: function () {
+                    console.log(this.editor_object.getData())
                     this.resizing = true
                 },
                 stop_resize: function () {
@@ -249,7 +250,9 @@
                 },
                 onEditorReady: function (editor) {
                     this.displayStatus(editor)
-
+                    this.listenKeyup(editor)
+                    this.editor_object = editor
+                    
                 },                
                 displayStatus: function (editor) {
                     //display save status
@@ -262,6 +265,111 @@
                             this.status_bar_left = "Saved"
                         }
                     });
+                },
+                //used for autolinking
+                listenKeyup: function (editor) {
+                    editor.editing.view.document.on('keyup', (evt, data) => {
+                        //if key is enter or space break word and check if item exists
+                        if ([13, 32].includes(data.keyCode)) {
+                            editor.model.change(writer => {
+                                //get the position at the cursor
+                                var insertPosition = editor.model.document.selection.getFirstPosition();
+                                console.log(insertPosition)
+                                //get cursor position as offset from topleft [element from top (0...n), letter offset (1...n)]
+                                let pos = insertPosition.path
+
+                                //if keyup was enter, move to above element
+                                if(data.keyCode === 13)
+                                    pos[0] = pos[0] - 1
+
+                                //get current element as text
+                                let p = data.domTarget.children[pos[0]].innerText                                
+
+                                //if just new line -> exit
+                                if(p.length === 1)
+                                    return
+
+                                //if enter, move to end of line
+                                if (data.keyCode === 13)
+                                    pos[1] = p.length
+                                //if space, make index from offset (enter has end of line as final character so no need)
+                                if (data.keyCode === 32)
+                                    pos[1] = pos[1] - 1
+
+                                //move to start of the word                               
+                                let i = pos[1]
+                                while (i >= 0) {
+                                    if (p[i] === ' ') {
+                                        break
+                                    }
+                                    i--
+                                }
+
+                                //get word
+                                let word = p.substr(i + 1, pos[1])
+                                console.log(word)
+
+                                //check if word exists in content
+                                var matches = []
+                                var match_categories = []
+                                var current_longest_word = 0
+                                for (var c in store.state.content) {
+                                    let items = store.state.content[c]
+                                    for (var it = 0; it < items.length; it++) {
+                                        if (items[it].length <= word.length && items[it].length >= current_longest_word && word.startsWith(items[it])) {
+                                            //keep item that is closest to the typed word in length and shorter than typed word
+                                            if (items[it].length > current_longest_word) {
+                                                matches = []
+                                                match_categories = []
+                                                matches.push(items[it])
+                                                match_categories.push(c)
+                                                current_longest_word = items[it].length
+                                            }
+                                            else {
+                                                matches.push(items[it])
+                                                match_categories.push(c)
+                                            }                                                                                       
+                                        }                                            
+                                    }                                    
+                                }
+                              
+                                if (matches.length) {
+                                    //keep one of the matches and hope it's the right one
+                                    let linked_item = matches[0]
+                                    let linked_category = match_categories[0]
+
+                                    //get range over the word that is replaced
+                                    var range = editor.model.schema.getNearestSelectionRange(insertPosition)                                    
+                                    pos[1] -= word.length
+                                    range.start.path = pos
+                                    range.end.path = [pos[0], pos[1] + linked_item.length]
+
+                                    writer.remove(range)
+                                    
+                                    insertPosition.path = pos                                                                       
+
+                                    //insert text
+                                    writer.insertText(linked_item, { linkHref: linked_category + "/" + linked_item }, insertPosition);
+                                }
+                                
+                            })
+                        }                        
+                    })
+                },
+                handle_links: function (event) {
+                    if (event.target.localName == 'a' && event.target.href) {
+                        const { altKey, ctrlKey, metaKey, shiftKey, button, defaultPrevented } = event
+                        // don't handle with control keys
+                        if (metaKey || altKey || ctrlKey || shiftKey) return
+                        // don't handle when preventDefault called
+                        if (defaultPrevented) return
+                        // don't handle right clicks
+                        if (button !== undefined && button !== 0) return
+                        console.log("found")
+                    }
+                    else {
+                        console.log("not found")
+                    } 
                 },
             },
             

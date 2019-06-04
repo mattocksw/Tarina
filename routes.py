@@ -254,7 +254,8 @@ def get_image(story_folder, filename):
             if file.startswith(filename):
                 valid_path = default_path + story_folder + '/' + file
                 with open(valid_path, "rb") as f:
-                    return HTTPResponse(f.read(), content_type="image/png")
+                    name, ext = os.path.splitext(file)
+                    return HTTPResponse(f.read(), content_type="image/" + ext[1:])
         resp = json.dumps({'error': "image not found"})
         return HTTPResponse(status=404, body=resp)
     except:
@@ -290,6 +291,7 @@ def save_image():
 @route('/save', method='POST')
 def save_item():
     try:
+        print("here")
         #get value from post
         story_name = request.json["story_name"]
         category = request.json["category"]
