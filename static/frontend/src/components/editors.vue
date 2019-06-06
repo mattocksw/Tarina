@@ -1,24 +1,26 @@
 
 <template>
-    <div v-if="editors.length" class="ui container">
+    <div v-if="editors.length" class="ui pusher container" ref="xposRef">
         <div class="ui hidden divider"></div>
-        <div v-for="editor in editors">
-            <div class="ui top attached large block header" style="border-bottom: none;">
-                <div class="ui two column stackable center aligned grid">
-                    <div class="left aligned column">
-                        {{editor.category}}/{{editor.item}}
-                    </div>
-                    <div class="right aligned column">
-                        <a class="ui right aligned item">
-                            <i v-on:click="close_editor(editor)" class="ui large close icon"></i>
-                        </a>
+        <div v-for="(editor, index) in editors">
+            <div ref="editor_references">
+                <div @mousedown="start_move(index)" class="ui top attached large block header" style="border-bottom: none;">
+                    <div class="ui two column stackable center aligned grid">
+                        <div class="left aligned column">
+                            {{editor.category}}/{{editor.item}}
+                        </div>
+                        <div class="right aligned column">
+                            <a class="ui right aligned item">
+                                <i v-on:click="close_editor(editor)" class="ui large close icon"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="ui bottom attached segment" style="text-align: left;">
-                <ck_editor v-bind:save_target="editor"> </ck_editor>
-            </div>
-            <div class="ui hidden divider"></div>
+                <div class="ui bottom attached segment" style="text-align: left;">
+                    <ck_editor v-on:start_resizing="start_resize(index)" v-on:stop_resizing="stop_resize(index)" v-bind:save_target="editor"> </ck_editor>
+                </div>
+                <div class="ui hidden divider"></div>
+            </div>    
         </div>
     </div>
 </template>
@@ -36,15 +38,82 @@
             computed: mapState({
                 editors: 'editors',            
             }),
-            methods: {
-                close_editor: function (editor) {
-                    this.$store.commit('delete_editor', { category: editor.category, item: editor.item })
-                }
+            mounted: function () {
+                window.addEventListener('mouseup', this.stop_move)
+                window.addEventListener('mousemove', this.move_event)
             },
             data: function () {
                 return {
-                    heigth: 100,
+                    moving: false,
+                    resizing: false,
+                    p_top: 0,
+                    p_right: 0,
+                    moving_index: 0,
                 }
-            }
+            },
+            methods: {
+                close_editor: function (editor) {
+                    this.$store.commit('delete_editor', { category: editor.category, item: editor.item })
+                },
+                start_move: function (index) {
+                    this.moving = true
+                    this.moving_index = index
+                },
+                stop_move: function () {
+                    this.moving = false
+                    this.moving_index = 0
+                },
+                start_resize: function (index) {
+                    this.resizing = true
+                    this.moving_index = index
+                },
+                stop_resize: function (index) {
+                    this.resizing = false
+                    this.moving_index = 0
+                },
+                move_event: function (event) {
+
+                    //check that editors exist
+                    if (this.moving_index > this.editors.length)
+                        return                    
+
+                    //check that there is something to do
+                    if (this.resizing || this.moving) {
+
+                        var left, top, width
+
+                        //Initialize/get values for clicked editor  
+                        const move_div = this.$refs.editor_references[this.moving_index]
+                        if (move_div.style.length > 2) {
+                            left = parseInt(move_div.style.left)
+                            top = parseInt(move_div.style.top)
+                            width = parseInt(move_div.style.width)
+                        }
+                        else {
+                            left = 0 //+ window.scrollX
+                            top = 0 //+ window.scrollY
+                            width = move_div.getBoundingClientRect().width
+                        }
+
+                        //move
+                        if (this.moving) {
+                            move_div.style.position = "relative"
+                            move_div.style.top = top + event.movementY + "px"
+                            move_div.style.left = left + event.movementX + "px"
+                            move_div.style.width = width + "px"
+                        }
+                        //resizing
+                        else {
+                            move_div.style.position = "relative"
+                            move_div.style.top = top + "px"
+                            move_div.style.left = left + "px"
+                            move_div.style.width = width + event.movementX + "px"
+                        }
+
+                    }
+                   
+                },
+            },
+            
     }
 </script>

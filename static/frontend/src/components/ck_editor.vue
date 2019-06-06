@@ -4,18 +4,23 @@
     }
 </style>
 
+<style>
+    a {
+        color: black;
+    }
+</style>
 
 <template>
 
     <div @click="handle_links" class="hurray" :style="cssProps">
         <ckeditor :editor="editor" v-model="editorData" :config="editorConfig" @ready="onEditorReady"></ckeditor>
         <div class="ui bottom attached segment" style="border: none; padding-bottom: 0;">
-            <div class="ui two column stackable center aligned grid">
+            <div @mousedown="start_resize" class="ui two column stackable center aligned grid">
                 <div class="left aligned column">
                     {{status_bar_left}}
                 </div>
                 <div class="right aligned column">
-                    <i @mousedown="start_resize" class="ui expand arrows alternate icon"></i>
+                    <i class="ui expand arrows alternate vertical large icon"></i>
                 </div>
             </div>
         </div>
@@ -89,7 +94,23 @@
                     required: true
                 },
             },
-            
+            watch: {
+                save_target: function (newVal, oldVal) {
+                    this.editor_object.config._config.save_target = newVal;
+                    //get item content from server, don't know why this is needed, just a quick fix
+                    this.axios.post('/get_item', {
+                        story_name: this.editorConfig.story_name,
+                        category: this.save_target.category,
+                        item_name: this.save_target.item,
+                    })
+                        .then(response => {
+                            this.editorData = response.data
+                        })
+                        .catch(error => {
+                            console.log(error.response.data)
+                        })
+                }
+            },
             data: function () {
                 return {
                     editor_object: null,
@@ -219,8 +240,8 @@
                 //get item content from server
                 this.axios.post('/get_item', {
                         story_name: this.editorConfig.story_name,
-                        category: this.editorConfig.save_target.category,
-                        item_name: this.editorConfig.save_target.item,
+                        category: this.save_target.category,
+                        item_name: this.save_target.item,
                     })
                     .then(response => {
                         this.editorData = response.data
@@ -237,11 +258,12 @@
             methods:
             {
                 start_resize: function () {
-                    console.log(this.editor_object.getData())
                     this.resizing = true
+                    this.$emit('start_resizing') //let parent know to start horizontal resize
                 },
                 stop_resize: function () {
                     this.resizing = false
+                    this.$emit('stop_resizing')
                 },
                 resize_event: function (event) {
                     if (this.resizing) {
@@ -250,7 +272,8 @@
                 },
                 onEditorReady: function (editor) {
                     this.displayStatus(editor)
-                    this.listenKeyup(editor)                   
+                    //this.listenKeyup(editor)
+                    //this.open_link(editor)
                     this.editor_object = editor
                     
                 },                
@@ -371,19 +394,28 @@
                         }                        
                     })
                 },
-                handle_links: function (event) {
+                open_link: function (editor) {
+                    
+                    const linkActions = editor.plugins._plugins.get('LinkUI')
+                    linkActions.on('change', (event) => {
+                        console.log("handle link opening")
+                    });
+                },
+
+                //https://dennisreimann.de/articles/delegating-html-links-to-vue-router.html
+                handle_links: function (event) {                    
                     if (event.target.localName == 'a' && event.target.href) {
                         const { altKey, ctrlKey, metaKey, shiftKey, button, defaultPrevented } = event
+                        
                         // don't handle with control keys
                         if (metaKey || altKey || ctrlKey || shiftKey) return
                         // don't handle when preventDefault called
                         if (defaultPrevented) return
-                        // don't handle right clicks
-                        if (button !== undefined && button !== 0) return
-                        console.log("found")
+                        
+                        console.log("link:" + event.target.href)                                               
                     }
                     else {
-                        console.log("not found")
+                        console.log("clicked item not a link")
                     } 
                 },
             },

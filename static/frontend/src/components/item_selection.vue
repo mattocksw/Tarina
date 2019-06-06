@@ -1,42 +1,60 @@
 <template>
-    <div v-if="story_selected" class="ui container">
-        <h3 class="ui top attached block header"> {{current_menu}} </h3>
-        <div class="ui attached menu">
-            <a v-on:click="click_back" class="item">
-                <i class="arrow left icon"></i>
-            </a>
-            <a v-on:click="click_new_item" class="item">New item</a>
-            <a v-on:click="toggle_modify_categories" v-if="show_items === false" class="item">{{toggle_text}}</a>
-            <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete item</a>
-            <i v-if="message.length" class="ui borderless item"> {{message}} </i>
-            <a class="right item">
-                <i v-on:click="refresh_content" class="sync icon"></i>
-            </a>
-        </div>
-        <div class="ui bottom attached segment">
-            <div v-bind:class="{ active: show_loader }" class="ui inverted dimmer">
-                <div class="ui large text loader">Loading</div>
+    <div v-if="story_selected">
+        <div class="ui visible very wide vertical sidebar menu">
+            <h3 class="ui top attached block header"> {{story_title}} </h3>
+
+            <h4 class="ui attached center aligned header">
+                <a v-if="show_items" v-on:click="click_back" class="left aligned">
+                    <i class="arrow left icon"></i>
+                </a>
+            {{current_menu}}
+            </h4>
+
+            <div class="ui secondary menu">
+
+
+                <a v-if="show_items" v-on:click="click_new_item" class="item">New file</a>
+                <a v-else v-on:click="click_new_item" class="item">New folder</a>
+
+                <a v-on:click="toggle_modify_categories" v-if="show_items === false" class="item">{{toggle_text}}</a>
+                <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete item</a>     
+
             </div>
-            <div v-if="show_items">
-                <draggable v-model="items" class="ui divided selection list" @end="reorder_complete">
-                    <div v-for="item in items" class="item">
-                        <div class="content">
-                            <div v-on:click="click_item(item)" v-bind:class="{blue: item === selected_item}" class="ui header">{{item}}</div>
+
+
+            <div class="ui attached segment">
+                <div v-bind:class="{ active: show_loader }" class="ui inverted dimmer">
+                    <div class="ui large text loader">Loading</div>
+                </div>
+                <div v-if="show_items">
+                    <draggable v-model="items" class="ui divided selection list" @end="reorder_complete">
+                        <div v-for="item in items" class="item">
+                            <div class="content">
+                                <div v-on:click="click_item(item)" v-bind:class="{blue: item === selected_item}" class="ui header">{{item}}</div>
+                            </div>
                         </div>
-                    </div>
-                </draggable>
-            </div>
-            <div v-else class="ui divided selection list">
-                <div v-for="category in categories" class="item">
-                    <div class="content">
-                        <div v-on:click="click_category(category)" v-bind:class="{blue: category === selected_item}" class="ui header">{{category}}</div>
+                    </draggable>
+                </div>
+                <div v-else class="ui divided selection list">
+                    <div v-for="category in categories" class="item">
+                        <div class="content">
+                            <div v-on:click="click_category(category)" v-bind:class="{blue: category === selected_item}" class="ui header">{{category}}</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="ui attached menu" style="border-bottom: none;">
+                <i v-if="message.length" class="ui borderless item"> {{message}} </i>
+                <a class="right item">
+                    <i v-on:click="refresh_content" class="sync icon"></i>
+                </a>
+            </div>
 
+
+        </div>
         <vdialog modal_name="add_item_dialog" :errors="errors" v-model="item_name" placeholder=""> </vdialog>
         <vdialog modal_name="delete_item_dialog" :errors="errors" :input_field="false"> </vdialog>
+        
     </div>
 </template>
 
@@ -249,7 +267,7 @@
                         .then(response => {
                             console.log("reorder saved")
                             this.$store.commit('update_items', { category: this.current_menu, items: this.items })
-                            this.message = "Saved"
+                            this.message = "Saved changes to file order"
 
                         })
                         .catch(error => {
