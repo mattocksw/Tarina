@@ -17,6 +17,7 @@ export default new Vuex.Store({
       story_title: "Name of the story",
       content: [],
       editors: [],
+      selected_editor_index: 0 
   },
   mutations: {
       add_category(state, category) {
@@ -57,8 +58,12 @@ export default new Vuex.Store({
           var combined = []
           combined["category"] = category
           combined["item"] = item
-          if (getEditorIndex(state.editors, category, item) === -1)
+          state.selected_editor_index = getEditorIndex(state.editors, category, item)
+          if (state.selected_editor_index === -1) {
               state.editors.push(combined)
+              state.selected_editor_index = state.editors.length - 1
+          }
+
       },
       delete_editor(state, { category, item }) {
           var index = getEditorIndex(state.editors, category, item)

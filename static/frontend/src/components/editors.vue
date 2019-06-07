@@ -22,6 +22,11 @@
                 <div class="ui hidden divider"></div>
             </div>    
         </div>
+        <div class="ui vertical footer segment" style="height: 200px">
+            <div class="ui horizontal small divided link list">
+                <a class="item">Credits</a>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -36,8 +41,29 @@
                 ck_editor,
             },
             computed: mapState({
-                editors: 'editors',            
+                editors: 'editors',
+                selected_editor_index: 'selected_editor_index'
             }),
+            watch: {
+                selected_editor_index: function (new_length, old_length) {
+                    if (old_length === 0)
+                        return
+                    //if new editor was created, scroll to the bottom of div containing all editors and footer
+                    if (new_length > old_length) {
+                        const new_div = this.$refs.xposRef
+                        const top = new_div.getBoundingClientRect().bottom + window.scrollY
+
+                        window.scrollTo({ top: top, behavior: 'smooth' })
+                    }
+                    //otherwise scroll to div
+                    else {
+                        const new_div = this.$refs.editor_references[this.selected_editor_index]
+                        const top = new_div.getBoundingClientRect().top + window.scrollY
+
+                        window.scrollTo({ top: top, behavior: 'smooth' })
+                    }
+                }
+            },
             mounted: function () {
                 window.addEventListener('mouseup', this.stop_move)
                 window.addEventListener('mousemove', this.move_event)
@@ -50,7 +76,7 @@
                     p_right: 0,
                     moving_index: 0,
                 }
-            },
+            },            
             methods: {
                 close_editor: function (editor) {
                     this.$store.commit('delete_editor', { category: editor.category, item: editor.item })

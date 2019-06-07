@@ -137,9 +137,11 @@
             },
             click_item: function (item) {
                 this.selected_item = item
+
                 //open editor
                 if (this.selected_item && this.current_menu !== "Categories")
-                    this.$store.commit('add_editor', { category: this.current_menu, item: this.selected_item })
+                    this.$store.commit('add_editor', { category: this.current_menu, item: this.selected_item })                
+
             },
             click_back: function ()
             {
