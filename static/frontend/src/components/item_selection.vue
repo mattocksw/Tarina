@@ -7,20 +7,17 @@
                 <a v-if="show_items" v-on:click="click_back" class="left aligned">
                     <i class="arrow left icon"></i>
                 </a>
-            {{current_menu}}
+                {{current_menu}}
             </h4>
+            <div class="ui attached segment">
+                <div>
 
-            <div class="ui secondary menu">
 
+                    <a v-if="show_items" v-on:click="click_new_item" class="item">New file</a>
+                    <a v-else v-on:click="click_new_item" class="item">New folder</a>
 
-                <a v-if="show_items" v-on:click="click_new_item" class="item">New file</a>
-                <a v-else v-on:click="click_new_item" class="item">New folder</a>
-
-                <a v-on:click="toggle_modify_categories" v-if="show_items === false" class="item">{{toggle_text}}</a>
-                <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete item</a>     
-
+                </div>
             </div>
-
 
             <div class="ui attached segment">
                 <div v-bind:class="{ active: show_loader }" class="ui inverted dimmer">
@@ -50,11 +47,21 @@
                 </a>
             </div>
 
+            <div v-if="show_items" class="ui attached segment">
+                <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete file</a>
+                <a v-else class="item" data-tooltip="No file selected">Delete file</a>
+
+                <a v-if="selected_item" v-on:click="click_rename_item('file')" class="item">Rename file</a>
+                <a v-else class="item" data-tooltip="No file selected">Rename file</a>
+
+                <a v-on:click="click_rename_item('folder')" class="item">Rename folder</a>
+            </div>
 
         </div>
         <vdialog modal_name="add_item_dialog" :errors="errors" v-model="item_name" placeholder=""> </vdialog>
         <vdialog modal_name="delete_item_dialog" :errors="errors" :input_field="false"> </vdialog>
-        
+        <vdialog modal_name="rename_item_dialog" :errors="errors" v-model="item_name" placeholder=""> </vdialog>
+
     </div>
 </template>
 
@@ -240,6 +247,64 @@
                                                     this.selected_item = null                                                    
                                                 }
                                                 this.$modal.hide('delete_item_dialog')
+
+                                            })
+                                            .catch(error => {
+                                                if (error.response.status === 404)
+                                                    this.errors = ["could not connect to server"]
+                                                if (Array.isArray(error.response.data))
+                                                    this.errors = error.response.data
+                                            })
+                                    }
+                                }
+                            ]
+                    });
+            },
+            click_rename_item: function (target) {
+                this.errors = []
+                var tmp = ''
+                if (target === 'file')
+                    tmp = this.selected_item
+                else
+                    tmp = this.current_menu
+
+                this.$modal.show('rename_item_dialog',
+                    {
+                        title: 'Rename ' + tmp,
+                        text: 'Enter new name',
+                        buttons:
+                            [
+                                {
+                                    title: 'Cancel',
+                                    handler: () => {
+                                        this.$modal.hide('rename_item_dialog')
+                                    }
+                                },
+                                {
+                                    title: 'Rename',
+                                    default: true,
+                                    handler: () => {
+                                        this.axios.post('/rename_item',
+                                            {
+                                                story_name: this.$store.state.story_title,
+                                                item_name: this.selected_item,
+                                                item_category: this.current_menu,
+                                                new_name: this.item_name,
+                                                target: target
+                                            })
+                                            .then(response => {
+                                                this.errors = []
+                                                //if folder
+                                                if (response.data.target !== 'file') {
+                                                    this.$store.commit('rename_category', { category: this.current_menu, new_name: this.item_name })
+                                                    this.current_menu = this.item_name
+                                                }
+                                                else {
+                                                    this.$store.commit('rename_item', { category: this.current_menu, item: this.selected_item, new_name: this.item_name })
+                                                    this.items = this.content[this.current_menu]                                                   
+                                                }
+                                                this.item_name = null
+                                                this.$modal.hide('rename_item_dialog')
 
                                             })
                                             .catch(error => {

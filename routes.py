@@ -353,4 +353,57 @@ def delete_story():
         return HTTPResponse(status=500, body=resp)
 
 
+@route('/rename_item', method='POST')
+def rename_item():
+    try:
+        story_name = request.json["story_name"]
+        category = request.json["item_category"]
+        item_name = request.json["item_name"]
+        new_name = request.json["new_name"]
+        target =  request.json["target"]
 
+        resp = validate_name(new_name)
+        if resp != None:
+            return resp
+
+        #if folder
+        if target != 'file':
+            #rename in categories mapping
+            story_folder = get_story_folder(story_name)
+            category_map = get_file_map(default_path + story_folder + '/' + categories_file)
+            category_folder = category_map[category] 
+            
+            #update mappings file
+            with open(default_path + story_folder + '/' + categories_file, 'w') as file:
+                for name, folder in category_map.items():
+                    if folder != category_folder:
+                        file.write("{} {}\n".format(folder, name))
+                    else:
+                        file.write("{} {}\n".format(folder, new_name))
+            
+            resp = json.dumps({'target': 'folder'})
+            return HTTPResponse(status=200, body=resp)
+
+        else:
+            #get item names
+            category_path = get_path_to_items(story_name, category)
+            item_map = get_file_map(category_path + item_names_file)
+            item_file = item_map[item_name]
+
+            #update mapping
+            with open(category_path + item_names_file, 'w') as file:
+                for name, folder in item_map.items():
+                    if folder != item_file:
+                        file.write("{} {}\n".format(folder, name))
+                    else:
+                        file.write("{} {}\n".format(folder, new_name))        
+
+            resp = json.dumps({'target': 'file'})
+            return HTTPResponse(status=200, body=resp)
+
+
+        resp = json.dumps(['errors: '''])
+        return HTTPResponse(status=200, body=resp)
+    except:
+        resp = json.dumps(['error: unexpected error creating item'])
+        return HTTPResponse(status=500, body=resp)
