@@ -48,13 +48,15 @@
             </div>
 
             <div v-if="show_items" class="ui attached segment">
-                <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete file</a>
-                <a v-else class="item" data-tooltip="No file selected">Delete file</a>
-
                 <a v-if="selected_item" v-on:click="click_rename_item('file')" class="item">Rename file</a>
                 <a v-else class="item" data-tooltip="No file selected">Rename file</a>
 
+                <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete file</a>
+                <a v-else class="item" data-tooltip="No file selected">Delete file</a>
+
                 <a v-on:click="click_rename_item('folder')" class="item">Rename folder</a>
+
+                <a v-on:click="click_delete_folder" class="item">Delete folder</a>
             </div>
 
         </div>
@@ -239,6 +241,7 @@
                                                 //if item deleted from categories, delete it from root, otherwise remove from existing
                                                 if (this.current_menu === "Categories") {
                                                     this.$store.commit('delete_category', this.selected_item)
+                                                    this.click_back()
                                                 }
                                                 else {                                                    
                                                     this.$store.commit('delete_item', { category: this.current_menu, item: this.selected_item })
@@ -259,6 +262,12 @@
                                 }
                             ]
                     });
+            },
+            click_delete_folder: function () {
+                this.selected_item = this.current_menu
+                this.current_menu = "Categories"
+                this.click_delete_item()
+
             },
             click_rename_item: function (target) {
                 this.errors = []

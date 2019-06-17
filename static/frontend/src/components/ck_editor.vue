@@ -245,6 +245,9 @@
                     })
                     .then(response => {
                         this.editorData = response.data
+                        if (this.editorData.length === 0) {
+                            this.editorData = "</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p>"
+                        }
                     })
                     .catch(error => {
                         console.log(error.response.data)
