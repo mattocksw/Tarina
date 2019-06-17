@@ -24,7 +24,7 @@
                 </p>
                 <div class="field">
                     <label v-html="params.text || ''"></label>
-                    <input v-if="input_field" type="text" name="value" v-model="value" :placeholder="placeholder">
+                    <input ref="fiel" v-if="input_field" type="text" name="value" v-model="value" :placeholder="placeholder">
                 </div>
             </div>
         </div>
@@ -104,11 +104,13 @@
         methods: {
             beforeOpened(event) {
                 window.addEventListener('keyup', this.onKeyUp)
+                window.addEventListener('keydown', this.onKeyDown)
                 this.params = event.params || {}
                 this.$emit('before-opened', event)
             },
             beforeClosed(event) {
                 window.removeEventListener('keyup', this.onKeyUp)
+                window.removeEventListener('keydown', this.onKeyDown)
                 this.params = {}
                 this.$emit('before-closed', event)
             },
@@ -130,6 +132,10 @@
                         this.click(buttonIndex, event, 'keypress')
                     }
                 }
+            },
+            onKeyDown(event) {
+                if (event.which !== 13 && this.input_field === true)
+                    this.$refs.fiel.focus()
             }
         }
     }
