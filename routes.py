@@ -24,7 +24,23 @@ def home():
     #return dict(
     #    title="writing app", titles=names
     #)
-    return static_file('index.html', root='static/frontend/dist/')
+    return static_file('index.html', root='dist/')
+
+@route('/css')
+def return_css():
+    return static_file('semantic.css', root='semantic/')
+
+@route('/themes/default/assets/fonts/icons.woff')
+def return_icon1():
+    return static_file('icons.woff', root='semantic/themes/default/assets/fonts/')
+
+@route('/themes/default/assets/fonts/icons.woff2')
+def return_icon2():
+    return static_file('icons.woff2', root='semantic/themes/default/assets/fonts/')
+
+@route('/themes/default/assets/fonts/icons.ttf')
+def return_icon3():
+    return static_file('icons.ttf', root='semantic/themes/default/assets/fonts/')
 
 @route('/get_stories')
 def get_stories():
@@ -291,7 +307,6 @@ def save_image():
 @route('/save', method='POST')
 def save_item():
     try:
-        print("here")
         #get value from post
         story_name = request.json["story_name"]
         category = request.json["category"]
