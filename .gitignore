@@ -107,6 +107,7 @@ venv.bak/
 files/default/
 
 obj/
+pyinstaller_dist/
 
 #vuecli stuff
 .DS_Store

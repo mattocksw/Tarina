@@ -6,6 +6,8 @@ const { styles } = require('@ckeditor/ckeditor5-dev-utils');
 module.exports = {
     runtimeCompiler: true,
 
+    filenameHashing: false,
+
     devServer: {
         proxy: {
             '/': {
@@ -15,7 +17,7 @@ module.exports = {
         },
     },
 
-    publicPath: process.env.NODE_ENV === 'production' ? 'static/frontend/dist' : '/',
+    publicPath: process.env.NODE_ENV === 'production' ? 'dist' : '/',
 
     // The source of CKEditor is encapsulated in ES6 modules. By default, the code
     // from the node_modules directory is not transpiled, so you must explicitly tell
@@ -27,7 +29,7 @@ module.exports = {
     
 
     configureWebpack: {   
-        
+
         plugins: [
             // CKEditor needs its own plugin to be built using webpack.
             new CKEditorWebpackPlugin({
