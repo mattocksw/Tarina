@@ -149,7 +149,7 @@
                             PasteFromOfficePlugin,
                             TablePlugin,
                             TableToolbarPlugin,
-                            SimpleUploadImagePlugin
+                            SimpleUploadImagePlugin,
                         ],
 
                         toolbar:
@@ -160,7 +160,7 @@
                                 'fontSize', 'fontFamily',                                
                                 'alignment:left', 'alignment:right', 'alignment:center', 'alignment:justify',
                                 'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript',
-                                'highlight',
+                                'fontColor', 'fontBackgroundColor',
                                 'link',
                                 'bulletedList',
                                 'numberedList',
