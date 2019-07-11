@@ -103,9 +103,11 @@ export default new Vuex.Store({
           Vue.delete(state.content, category)
           Vue.set(state.content, category, tmp_category_content)
 
+          
+
           //if editor exists, change name there too
-          var index = getEditorIndex(state.editors, category, item)
-          if (state.selected_editor_index !== -1) {
+          var index = getEditorIndex(state.editors, category, item)          
+          if (index !== -1) {
               var tmp_editors = state.editors
               var tmp_editor = tmp_editors[index]
 
@@ -115,6 +117,8 @@ export default new Vuex.Store({
               Vue.delete(state.editors)
               Vue.set(state.editors, tmp_editors)
           }
+
+          
       },
   },
   actions: {

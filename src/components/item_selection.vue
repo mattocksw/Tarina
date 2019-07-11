@@ -46,10 +46,10 @@
 
                     <div class="ui large vertical menu" style="background-color: rgb(63, 63, 65); border:none; max-height:60vh; height:auto;overflow-y:scroll;">
                         <div v-for="category in categories">
-                            <div class="ui simple dropdown item" v-on:mouseover="click_category(category)">
+                            <div class="ui simple dropdown item" v-on:click="click_category(category)"  >
 
                                 <i class="ui dropdown icon"></i>
-                                <div style="color:teal; font-size: 20px; overflow-wrap: break-word;">{{category}}</div>
+                                <div style="color:teal; font-size: 20px; overflow-wrap: break-word;" @contextmenu.prevent="$refs.menu.open($event, {category: 'Categories', file: category})">{{category}}</div>
 
                                 <div v-if="category===current_menu">
                                     <div class="item">
@@ -57,7 +57,11 @@
                                     </div>
                                     <draggable v-model="items" class="ui inverted divided selection list" @end="reorder_complete" style="max-height:300px; height:auto;overflow-y:scroll; ">
                                         <div v-for="item in items" class="item">
-                                            <div style="overflow-wrap: break-word;color:white" v-on:click="click_item(item)" v-bind:class="{blue: item === selected_item}" class="ui hb header">{{item}}</div>
+                                            <div style="overflow-wrap: break-word;color:white" 
+                                                 @contextmenu.prevent="$refs.menu.open($event, {category: category, file: item})" 
+                                                 v-on:click="click_item(item)" 
+                                                 v-bind:class="{blue: item === selected_item}" 
+                                                 class="ui hb header">{{item}}</div>
                                         </div>
                                     </draggable>
                                 </div>
@@ -71,31 +75,26 @@
 
                 </div>
 
-
-                <!--
-
-    <div v-if="show_items" class="ui attached segment">
-        <a v-if="selected_item" v-on:click="click_rename_item('file')" class="item">Rename file</a>
-        <a v-else class="item" data-tooltip="No file selected">Rename file</a>
-
-        <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete file</a>
-        <a v-else class="item" data-tooltip="No file selected">Delete file</a>
-
-        <a v-on:click="click_rename_item('folder')" class="item">Rename folder</a>
-
-        <a v-on:click="click_delete_folder" class="item">Delete folder</a>
-    </div>
-
-        -->
-                </transition">
-                    <i v-if="message.length" class="ui borderless item"> {{message}} </i>
-                    <a class="right item">
-                        <i v-on:click="refresh_content" class="sync icon"></i>
-                    </a>
-</Push>
+            </transition">
+            <div v-if="sidebar_open">
+                <i v-if="message.length" class="ui borderless item"> {{message}} </i>
+                <a class="right item">
+                    <i v-on:click="refresh_content" class="sync icon"></i>
+                </a>
+            </div>
+        </Push>
         <vdialog modal_name="add_item_dialog" :errors="errors" v-model="item_name" placeholder="" @opened="open_dialog" @closed="close_dialog"> </vdialog>
         <vdialog modal_name="delete_item_dialog" :errors="errors" :input_field="false" @opened="open_dialog" @closed="close_dialog"> </vdialog>
         <vdialog modal_name="rename_item_dialog" :errors="errors" v-model="item_name" placeholder="" @opened="open_dialog" @closed="close_dialog"> </vdialog>
+
+        <vue-context ref="menu">
+            <div class="ui list" slot-scope="child">
+                <div class="ui black basic button" @click="optionClicked($event.target.innerText, child.data)">Rename</div>
+                <div class="ui inverted red button" @click="optionClicked($event.target.innerText, child.data)">Delete</div>
+            </div>
+
+
+        </vue-context>
 
     </div>
 </template>
@@ -104,7 +103,10 @@
     import draggable from 'vuedraggable'
     import vdialog from '@/components/vdialog.vue'
     import { mapState } from 'vuex';
-    import { Push } from 'vue-burger-menu' 
+    import { Push } from 'vue-burger-menu'
+
+    import { VueContext } from 'vue-context';
+    
     export default {
         name: 'item_selection',
         computed: mapState({
@@ -131,6 +133,7 @@
             vdialog,
             draggable,
             Push,
+            VueContext,
         },
         data: function ()
         {
@@ -171,6 +174,16 @@
         },
         methods:
         {
+            optionClicked: function (text, data) {
+                
+                this.current_menu = data.category
+                this.selected_item = data.file
+
+                if (text === 'Rename')
+                    this.click_rename_item()
+                if (text === 'Delete')
+                    this.click_delete_item()
+            },
             open_dialog: function () {
                 this.vdialog_open = true
             },
@@ -190,7 +203,7 @@
                 if (this.vdialog_open)
                     return
 
-                if (this.current_menu == category)
+                if (this.current_menu === category)
                     return
 
                 //if modify is disabled, open
@@ -198,7 +211,6 @@
                     this.items = this.content[category]
                     this.show_items = true
                     this.current_menu = category
-                    console.log(this.items)
                 }
                 else {
                     this.selected_item = category
@@ -221,6 +233,9 @@
             },
             click_new_item: function (item_type="file")
             {
+                if (this.vdialog_open === true)
+                    return
+
                 if (item_type === "folder")
                     this.current_menu = "Categories"
 
@@ -334,15 +349,10 @@
             },
             click_rename_item: function (target) {
                 this.errors = []
-                var tmp = ''
-                if (target === 'file')
-                    tmp = this.selected_item
-                else
-                    tmp = this.current_menu
 
                 this.$modal.show('rename_item_dialog',
                     {
-                        title: 'Rename ' + tmp,
+                        title: 'Rename ' + this.selected_item,
                         text: 'Enter new name',
                         buttons:
                             [
@@ -361,15 +371,18 @@
                                                 story_name: this.$store.state.story_title,
                                                 item_name: this.selected_item,
                                                 item_category: this.current_menu,
-                                                new_name: this.item_name,
-                                                target: target
+                                                new_name: this.item_name
                                             })
                                             .then(response => {
+                                                console.log(response)
                                                 this.errors = []
                                                 //if folder
                                                 if (response.data.target !== 'file') {
-                                                    this.$store.commit('rename_category', { category: this.current_menu, new_name: this.item_name })
+                                                    this.$store.commit('rename_category', { category: this.selected_item, new_name: this.item_name })
                                                     this.current_menu = this.item_name
+                                                    this.items = this.content[this.current_menu]
+                                                    this.show_items = true
+
                                                 }
                                                 else {
                                                     this.$store.commit('rename_item', { category: this.current_menu, item: this.selected_item, new_name: this.item_name })

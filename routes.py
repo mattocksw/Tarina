@@ -392,7 +392,11 @@ def rename_item():
         category = request.json["item_category"]
         item_name = request.json["item_name"]
         new_name = request.json["new_name"]
-        target =  request.json["target"]
+
+        if(category == "Categories"):
+            target =  "Categories"
+        else:
+            target = "file"
 
         resp = validate_name(new_name)
         if resp != None:
@@ -403,7 +407,7 @@ def rename_item():
             #rename in categories mapping
             story_folder = get_story_folder(story_name)
             category_map = get_file_map(default_path + story_folder + '/' + categories_file)
-            category_folder = category_map[category] 
+            category_folder = category_map[item_name] 
             
             #update mappings file
             with open(default_path + story_folder + '/' + categories_file, 'w') as file:
