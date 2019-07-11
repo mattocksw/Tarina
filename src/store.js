@@ -14,7 +14,7 @@ function getEditorIndex(editors, category, item) {
 export default new Vuex.Store({
   state: {
       story_selected: false,
-      story_title: "Name of the story",
+      story_title: "Tarina",
       content: [],
       editors: [],
       selected_editor_index: 0 /*Used for scrolling*/

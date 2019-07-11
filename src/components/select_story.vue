@@ -1,10 +1,11 @@
 <template>
-    <div class="ui simple dropdown item">
-        Select story
-        <i class="dropdown icon"></i>
-        <div class="menu" style="overflow:auto; max-height: 50vh; max-width: 50vw;">
-            <a v-for="title in sortedTitles" v-on:click="click_select_story_item(title)" class="item">{{title}}</a>
-            <a v-if="titles.length === 0" class="red item">Empty</a>
+    <div v-if="story_selected === false" class="ui content">        
+        <div class="top attached segment">
+            <div class="ui large selection list">
+                <div v-for="title in sortedTitles" v-on:click="click_select_story_item(title)" class="item">
+                    <div class="content" style="color:teal; font-size: 1.5rem;">{{title}}</div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -12,6 +13,7 @@
 <script>
 
     import Vue from 'vue'
+    import { mapState } from 'vuex';
     export default
         {
             name: 'select_story',
@@ -29,8 +31,7 @@
                         console.log(error.response.data)
                     })
             },
-            computed:
-            {
+            computed: mapState({
                 sortedTitles: function () {
                     function compare(a, b) {
                         var au = a.toUpperCase()
@@ -44,7 +45,9 @@
 
                     return this.titles.slice().sort(compare);
                 },
-            },
+                
+                    story_selected: 'story_selected',
+            }),
             methods:
             {
                 click_select_story_item: function (title) {

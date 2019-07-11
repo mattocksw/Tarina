@@ -1,68 +1,101 @@
+
+<style>
+    .bm-burger-button {
+        position: fixed;
+        width: 36px;
+        height: 30px;
+        cursor: pointer;
+    }    
+    .bm-item-list {
+        color: #b8b7ad;
+        margin-left: 0%;
+        font-size: 20px;
+    }
+    .bm-menu {
+        height: 100%; /* 100% Full-height */
+        width: 0; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1000; /* Stay on top */
+        top: 0;
+        left: 0;
+        background-color: rgb(63, 63, 65); /* Black*/
+        overflow-x: visible; /* Disable horizontal scroll */
+        padding-top: 60px; /* Place content 60px from the top */
+        transition: 0.5s; /*0.5 second transition effect to slide in the sidenav*/
+    }
+    .hb:hover {
+        background-color: black;
+    }
+</style>
+
+
 <template>
     <div v-if="story_selected">
-        <div class="ui visible very wide vertical sidebar menu">
-            <h3 class="ui top attached block header"> {{story_title}} </h3>
-
-            <h4 class="ui attached center aligned header">
-                <a v-if="show_items" v-on:click="click_back" class="left aligned">
-                    <i class="arrow left icon"></i>
-                </a>
-                {{current_menu}}
-            </h4>
-            <div class="ui attached segment">
-                <div>
-
-
-                    <a v-if="show_items" v-on:click="click_new_item" class="item">New file</a>
-                    <a v-else v-on:click="click_new_item" class="item">New folder</a>
-
-                </div>
+        <Push isOpen disableOutsideClick @openMenu="handleOpenMenu" @closeMenu="handleCloseMenu">
+            <a v-if="sidebar_open"><span>Directory</span></a>
+            <div class="item">
+                <a v-if="sidebar_open" v-on:click="click_new_item('folder')" href="#" class="ui inverted black left button"><span>New folder</span></a>
             </div>
+            <transition v-if="sidebar_open" :duration="{ enter: 500, leave: 0 }">
 
-            <div class="ui attached segment">
-                <div v-bind:class="{ active: show_loader }" class="ui inverted dimmer">
-                    <div class="ui large text loader">Loading</div>
-                </div>
-                <div v-if="show_items">
-                    <draggable v-model="items" class="ui divided selection list" @end="reorder_complete">
-                        <div v-for="item in items" class="item">
-                            <div class="content">
-                                <div v-on:click="click_item(item)" v-bind:class="{blue: item === selected_item}" class="ui header">{{item}}</div>
+
+                <div>
+                    <div v-bind:class="{ active: show_loader }" class="ui inverted dimmer">
+                        <div class="ui large text loader">Loading</div>
+                    </div>
+
+                    <div class="ui large vertical menu" style="background-color: rgb(63, 63, 65); border:none; max-height:60vh; height:auto;overflow-y:scroll;">
+                        <div v-for="category in categories">
+                            <div class="ui simple dropdown item" v-on:mouseover="click_category(category)">
+
+                                <i class="ui dropdown icon"></i>
+                                <div style="color:teal; font-size: 20px; overflow-wrap: break-word;">{{category}}</div>
+
+                                <div v-if="category===current_menu">
+                                    <div class="item">
+                                        <div class="ui inverted black button" v-on:click="click_new_item" style="border:none; border-color: transparent;">New file</div>
+                                    </div>
+                                    <draggable v-model="items" class="ui inverted divided selection list" @end="reorder_complete" style="max-height:300px; height:auto;overflow-y:scroll; ">
+                                        <div v-for="item in items" class="item">
+                                            <div style="overflow-wrap: break-word;color:white" v-on:click="click_item(item)" v-bind:class="{blue: item === selected_item}" class="ui hb header">{{item}}</div>
+                                        </div>
+                                    </draggable>
+                                </div>
+
+
                             </div>
                         </div>
-                    </draggable>
-                </div>
-                <div v-else class="ui divided selection list">
-                    <div v-for="category in categories" class="item">
-                        <div class="content">
-                            <div v-on:click="click_category(category)" v-bind:class="{blue: category === selected_item}" class="ui header">{{category}}</div>
-                        </div>
                     </div>
+
+
+
                 </div>
-            </div>
-            <div class="ui attached menu" style="border-bottom: none;">
-                <i v-if="message.length" class="ui borderless item"> {{message}} </i>
-                <a class="right item">
-                    <i v-on:click="refresh_content" class="sync icon"></i>
-                </a>
-            </div>
 
-            <div v-if="show_items" class="ui attached segment">
-                <a v-if="selected_item" v-on:click="click_rename_item('file')" class="item">Rename file</a>
-                <a v-else class="item" data-tooltip="No file selected">Rename file</a>
 
-                <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete file</a>
-                <a v-else class="item" data-tooltip="No file selected">Delete file</a>
+                <!--
 
-                <a v-on:click="click_rename_item('folder')" class="item">Rename folder</a>
+    <div v-if="show_items" class="ui attached segment">
+        <a v-if="selected_item" v-on:click="click_rename_item('file')" class="item">Rename file</a>
+        <a v-else class="item" data-tooltip="No file selected">Rename file</a>
 
-                <a v-on:click="click_delete_folder" class="item">Delete folder</a>
-            </div>
+        <a v-on:click="click_delete_item" v-if="selected_item" class="item">Delete file</a>
+        <a v-else class="item" data-tooltip="No file selected">Delete file</a>
 
-        </div>
-        <vdialog modal_name="add_item_dialog" :errors="errors" v-model="item_name" placeholder=""> </vdialog>
-        <vdialog modal_name="delete_item_dialog" :errors="errors" :input_field="false"> </vdialog>
-        <vdialog modal_name="rename_item_dialog" :errors="errors" v-model="item_name" placeholder=""> </vdialog>
+        <a v-on:click="click_rename_item('folder')" class="item">Rename folder</a>
+
+        <a v-on:click="click_delete_folder" class="item">Delete folder</a>
+    </div>
+
+        -->
+                </transition">
+                    <i v-if="message.length" class="ui borderless item"> {{message}} </i>
+                    <a class="right item">
+                        <i v-on:click="refresh_content" class="sync icon"></i>
+                    </a>
+</Push>
+        <vdialog modal_name="add_item_dialog" :errors="errors" v-model="item_name" placeholder="" @opened="open_dialog" @closed="close_dialog"> </vdialog>
+        <vdialog modal_name="delete_item_dialog" :errors="errors" :input_field="false" @opened="open_dialog" @closed="close_dialog"> </vdialog>
+        <vdialog modal_name="rename_item_dialog" :errors="errors" v-model="item_name" placeholder="" @opened="open_dialog" @closed="close_dialog"> </vdialog>
 
     </div>
 </template>
@@ -71,6 +104,7 @@
     import draggable from 'vuedraggable'
     import vdialog from '@/components/vdialog.vue'
     import { mapState } from 'vuex';
+    import { Push } from 'vue-burger-menu' 
     export default {
         name: 'item_selection',
         computed: mapState({
@@ -96,6 +130,7 @@
         {
             vdialog,
             draggable,
+            Push,
         },
         data: function ()
         {
@@ -111,6 +146,8 @@
                 show_loader: false,
                 modify_categories: false,
                 toggle_text: "Modify",
+                sidebar_open: true,
+                vdialog_open: false,
             }
         },
         watch: {
@@ -128,17 +165,40 @@
                 this.modify_categories = false
                 this.toggle_text = "Modify"
                 this.$store.commit('delete_all_editors')
+                this.sidebar_open = true
+                this.vdialog_open = false
             },
         },
         methods:
         {
+            open_dialog: function () {
+                this.vdialog_open = true
+            },
+            close_dialog: function () {
+                this.vdialog_open = false
+            },
+            handleOpenMenu: function () {
+                this.sidebar_open=true
+            },
+            handleCloseMenu: function () {
+                this.sidebar_open = false
+            },
             click_category: function (category)
             {
+                console.log(this.vdialog_open)
+
+                if (this.vdialog_open)
+                    return
+
+                if (this.current_menu == category)
+                    return
+
                 //if modify is disabled, open
                 if (this.modify_categories === false) {
                     this.items = this.content[category]
                     this.show_items = true
                     this.current_menu = category
+                    console.log(this.items)
                 }
                 else {
                     this.selected_item = category
@@ -159,8 +219,11 @@
                 this.show_items = false
                 this.current_menu = "Categories"
             },
-            click_new_item: function ()
+            click_new_item: function (item_type="file")
             {
+                if (item_type === "folder")
+                    this.current_menu = "Categories"
+
                 this.errors = []
                 this.$modal.show('add_item_dialog',
                     {

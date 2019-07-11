@@ -46,6 +46,7 @@ def vue_return(folder, file):
 def return_css():
     return static_file('semantic.css', root='semantic/')
 
+
 @route('/themes/default/assets/fonts/icons.woff')
 def return_icon1():
     return static_file('icons.woff', root='semantic/themes/default/assets/fonts/')

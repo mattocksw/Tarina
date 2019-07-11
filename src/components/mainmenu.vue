@@ -1,13 +1,14 @@
 <template>
-    <div class="ui horizontal menu">
-        <select_story />
+    
+    <div class="ui large horizontal menu">
         <new_story />
-        <delete_story class="right menu"/>
-    </div>
+        <a class="ui item" href="/">Select story</a>
+        <a class="ui item" v-on:click="new_tab">New tab</a>
+        <delete_story class="right menu" />
+    </div>    
 </template>
 
-<script>
-    import select_story from '@/components/select_story.vue'
+<script>   
     import new_story from '@/components/new_story.vue'
     import delete_story from '@/components/delete_story.vue'
     export default
@@ -20,15 +21,16 @@
                 }
             },            
             components:
-            {
-                select_story,
+            {                
                 new_story,
                 delete_story,
             },
                       
             methods:
             {
-                
+                new_tab: function () {
+                    window.open("/")
+                }
             },
         }
 </script>
