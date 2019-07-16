@@ -15,6 +15,15 @@ from helper_functions import *
 import json
 from bottle import HTTPResponse, static_file
 
+#pip install pdfkit
+#on windows:
+    #download and install wkhtmltopdf
+    #add it's bin folder to path
+#on linux:
+    #sudo apt-get install wkhtmltopdf
+
+import pdfkit
+
 @route('/')
 @route('/home')
 def home():
@@ -69,6 +78,44 @@ def get_stories():
         resp = json.dumps(['errors: could not load titles'])
         return HTTPResponse(status=500, body=resp)
     
+#return pdf
+@route('/story/<story_name>/<category>/<filename:path>')
+def download(story_name, category, filename):
+    try:               
+        #get chapters        
+        category_path = get_path_to_items(story_name, category)
+        item_map = get_file_map(category_path + item_names_file)
+
+        #write title
+        html_string = '<h1>' + story_name + '</h1>'
+
+        #append all chapters together
+        for name, folder in item_map.items():
+            with open(category_path + '/' + folder, 'r') as file:
+
+                #write chapter title
+                html_string += '<h2>' + name + '</h2>'
+
+                #write chapter contents
+                html_string += file.read()
+
+        #https://www.bedjango.com/blog/how-generate-pdf-django-weasyprint/
+        #html = HTML(string=html_string)
+        #pdf = html.write_pdf()
+
+        #write the pdf
+        story_folder = get_story_folder(story_name)
+        with open(default_path + story_folder + '/story.html', 'w') as output:
+            output.write(html_string)
+            output.flush()
+        
+        # Creating http response
+        return static_file('story.html', root=default_path + story_folder, download='story.html')
+
+    except:
+        resp = json.dumps(['errors: unexpected error'])
+        return HTTPResponse(status=422, body=resp)
+
 
 @route('/new_story', method='POST')
 def add_story():

@@ -29,9 +29,11 @@ def get_file_map(path_to_file):
         pass
     return file_map
 
+#name given by user
 def get_keys(d):
     return list(d.keys())
 
+#random generated name
 def get_values(d):
     return list(d.values())
 

@@ -8,6 +8,9 @@
     a {
         color: black;
     }
+    .ck.ck-dropdown .ck-button.ck-dropdown__button .ck-button__label {
+        width: auto;
+    }
 </style>
 
 <template>
@@ -52,6 +55,7 @@
     import ParagraphPlugin from '@ckeditor/ckeditor5-paragraph/src/paragraph';
     import Autosave from "@ckeditor/ckeditor5-autosave/src/autosave"
     import PendingActions from '@ckeditor/ckeditor5-core/src/pendingactions';
+    import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
     import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
     import FontPlugin from '@ckeditor/ckeditor5-font/src/font';
     import HighlightPlugin from '@ckeditor/ckeditor5-highlight/src/highlight';
@@ -59,6 +63,40 @@
     import TablePlugin from '@ckeditor/ckeditor5-table/src/table';
     import TableToolbarPlugin from '@ckeditor/ckeditor5-table/src/tabletoolbar';
     import SimpleUploadImagePlugin from '@samhammer/ckeditor5-simple-image-upload-plugin/src/simple-upload-image-plugin'
+
+
+    //https://github.com/ckeditor/ckeditor5-font/issues/23
+    //https://github.com/ckeditor/ckeditor5-font/issues/18
+    export class FontSizeDropdown extends Plugin {
+        init() {
+            this.editor.ui.componentFactory.add('fontSizeDropdown', () => {
+                const editor = this.editor;
+
+                const command = editor.commands.get('fontSize');
+
+                // Use original fontSize button - we only changes its behavior.
+                const dropdownView = editor.ui.componentFactory.create('fontSize');
+
+                // Show label on dropdown's button.
+                dropdownView.buttonView.set('withText', true);
+
+                // Disable icon on the button.
+                dropdownView.buttonView.set('icon', false);
+
+                // To hide the icon uncomment below.
+                // dropdownView.buttonView.set( 'icon', false );
+
+                // Bind dropdown's button label to fontSize value.
+                dropdownView.buttonView.bind('label').to(command, 'value', value => {
+                    // If no value is set on the command show 'Default' text.
+                    // Use t() method to make that string translatable.
+                    return value ? value : '16'; // The Default size is '16'
+                });
+
+                return dropdownView;
+            });
+        }
+    }
 
 
     function saveData(data, story, target) {
@@ -83,6 +121,19 @@
                     'Content-Type': 'multipart/form-data'
                 }
             })
+    }
+
+    function generatePtSetting(size) {
+        return {
+            model: size,
+            title: size,
+            view: {
+                name: 'span',
+                styles: {
+                    'font-size': `${size}pt`
+                }
+            }
+        };
     }
 
     export default
@@ -114,7 +165,7 @@
             data: function () {
                 return {
                     editor_object: null,
-                    editor_height: 500,
+                    editor_height: 1000,
                     resizing: false,
                     status_bar_left: "",
                     status_bar_right: "",
@@ -145,6 +196,7 @@
                             PendingActions,
                             Alignment,
                             FontPlugin,
+                            FontSizeDropdown,
                             HighlightPlugin,
                             PasteFromOfficePlugin,
                             TablePlugin,
@@ -157,7 +209,7 @@
                             items: [
                                 'heading',
                                 '|',
-                                'fontSize', 'fontFamily',                                
+                                'fontSizeDropdown', 'fontFamily',                                
                                 'alignment:left', 'alignment:right', 'alignment:center', 'alignment:justify',
                                 'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript',
                                 'fontColor', 'fontBackgroundColor',
@@ -199,13 +251,15 @@
                         },
                         fontSize: {
                             options: [
-                                9,
-                                11,
-                                13,
-                                'default',
-                                17,
-                                19,
-                                21
+                                generatePtSetting('9'),
+                                generatePtSetting('11'),
+                                generatePtSetting('13'),
+                                generatePtSetting('15'),
+                                generatePtSetting('17'),
+                                generatePtSetting('19'),
+                                generatePtSetting('21'),
+                                generatePtSetting('32'),
+                                
                             ]
                         },
                         highlight: {

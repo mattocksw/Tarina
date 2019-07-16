@@ -53,7 +53,7 @@
 
                                 <div v-if="category===current_menu">
                                     <div class="item">
-                                        <div class="ui inverted black button" v-on:click="click_new_item" style="border:none; border-color: transparent;">New file</div>
+                                        <a class="ui inverted black left button" v-on:click="click_new_item">New file</a>
                                     </div>
                                     <draggable v-model="items" class="ui inverted divided selection list" @end="reorder_complete" style="max-height:300px; height:auto;overflow-y:scroll; ">
                                         <div v-for="item in items" class="item">
@@ -267,6 +267,7 @@
                                                 //if item added to categories, add it in root, otherwise append to existing
                                                 if (this.current_menu === "Categories") {
                                                     this.$store.commit('add_category', this.item_name)
+                                                    this.current_menu = this.item_name
                                                 }
                                                 else {
                                                     this.$store.commit('add_item', { category: this.current_menu, item: this.item_name })
