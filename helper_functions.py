@@ -20,7 +20,7 @@ default_categories = ["Chapters", "Characters", "Locations"]
 def get_file_map(path_to_file):
     file_map = {}
     try:
-        with open(path_to_file, 'r') as file:
+        with open(path_to_file, encoding='utf-8', mode='r') as file:
             lines = file.readlines()
             for line in lines:  
                 file, name = line.split(' ', 1)
@@ -50,7 +50,7 @@ def create_default_categories(story_folder):
     os.mkdir(default_path + story_folder)
 
     #create directories for default categories and write them in mapping file
-    with open(default_path + story_folder + '/' + categories_file, 'a') as file:
+    with open(default_path + story_folder + '/' + categories_file, encoding='utf-8', mode='a') as file:
         for category in default_categories:
             os.mkdir('files/default/' + story_folder + '/' + category)
             file.write("{} {}\n".format(category, category))

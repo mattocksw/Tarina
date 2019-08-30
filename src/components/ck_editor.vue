@@ -110,10 +110,12 @@
     }
 
     function saveImage(data) {
+        console.log(data)
         var story = store.state.story_title        
         let formData = new FormData();
         formData.append("image", data);
         formData.append("story_name", story);
+        formData.append("image_name", data.name);
         return Vue.prototype.axios.post('/save_image',
             formData,
             {

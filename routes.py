@@ -91,7 +91,7 @@ def download(story_name, category, filename):
 
         #append all chapters together
         for name, folder in item_map.items():
-            with open(category_path + '/' + folder, 'r') as file:
+            with open(category_path + '/' + folder, encoding='utf-8', mode='r') as file:
 
                 #write chapter title
                 html_string += '<h2>' + name + '</h2>'
@@ -99,13 +99,9 @@ def download(story_name, category, filename):
                 #write chapter contents
                 html_string += file.read()
 
-        #https://www.bedjango.com/blog/how-generate-pdf-django-weasyprint/
-        #html = HTML(string=html_string)
-        #pdf = html.write_pdf()
-
-        #write the pdf
+        #write the html
         story_folder = get_story_folder(story_name)
-        with open(default_path + story_folder + '/story.html', 'w') as output:
+        with open(default_path + story_folder + '/story.html', encoding='utf-8', mode='w') as output:
             output.write(html_string)
             output.flush()
         
@@ -139,7 +135,7 @@ def add_story():
         create_default_categories(story_folder)
 
         #write the story to the story name folder name mapping file
-        with open(default_path + stories_file, 'a') as file:
+        with open(default_path + stories_file, encoding='utf-8', mode='a') as file:
             file.write("{} {}\n".format(story_folder, story_name))
 
         content = get_all_content_names(story_name)
@@ -171,7 +167,7 @@ def new_item():
                 return HTTPResponse(status=422, body=resp)
             #add item
             random_name = get_new_name(get_values(category_map), 10)
-            with open(default_path + story_folder + '/' + categories_file, 'a') as file:
+            with open(default_path + story_folder + '/' + categories_file, encoding='utf-8', mode='a') as file:
                 file.write("{} {}\n".format(random_name, item_name))
             #create folder
             os.mkdir(default_path + story_folder + '/' + random_name)
@@ -187,7 +183,7 @@ def new_item():
 
             #add item
             random_name = get_new_name(get_values(item_map), 10)
-            with open(category_path + item_names_file, 'a') as file:
+            with open(category_path + item_names_file, encoding='utf-8', mode='a') as file:
                 file.write("{} {}\n".format(random_name, item_name))     
 
         resp = json.dumps(['errors: '''])
@@ -214,7 +210,7 @@ def delete_item():
                 return HTTPResponse(status=422, body=resp)
 
             #update mappings file
-            with open(default_path + story_folder + '/' + categories_file, 'w') as file:
+            with open(default_path + story_folder + '/' + categories_file, encoding='utf-8', mode='w') as file:
                 for name, folder in category_map.items():
                     if name != item_name:
                         file.write("{} {}\n".format(folder, name))
@@ -233,7 +229,7 @@ def delete_item():
                 return HTTPResponse(status=422, body=resp)
 
             #delete item
-            with open(category_path + item_names_file, 'w') as file:
+            with open(category_path + item_names_file, encoding='utf-8', mode='w') as file:
                 for name, folder in item_map.items():
                     if name != item_name:
                         file.write("{} {}\n".format(folder, name))     
@@ -280,7 +276,7 @@ def get_item():
         item = item_map[item_name]
         content = ''
         try:
-            with open(category_path + '/' + item, 'r') as file:
+            with open(category_path + '/' + item, encoding='utf-8', mode='r') as file:
                 content = file.read()
         except:
             pass
@@ -308,7 +304,7 @@ def reorder_items():
             return HTTPResponse(status=422, body=resp)
 
         #write items in new order, dict in python 3.6 should be ordered in insert order
-        with open(category_path + item_names_file, 'w') as file:
+        with open(category_path + item_names_file, encoding='utf-8', mode='w') as file:
             for item in item_names:
                 file.write("{} {}\n".format(item_map[item], item)) 
 
@@ -347,9 +343,11 @@ def save_image():
     try: 
         #get image
         file = request.files.get('image')
-        story_name = request.forms.get("story_name")        
-        name, ext = os.path.splitext(file.filename)
-        if ext not in ('.png', '.jpg', '.jpeg'):
+        story_name = request.forms.get("story_name") 
+        image_name = request.forms.get("image_name") 
+        name, sep, ext = image_name.rpartition('.')
+        ext = sep + ext
+        if ext.lower() not in ('.png', '.jpg', '.jpeg'):
             resp = json.dumps({'story_folder': 'filename', 'file_name': 'filename'})
             return HTTPResponse(status=500, body=resp)
 
@@ -390,7 +388,7 @@ def save_item():
             return HTTPResponse(status=422, body=resp)
 
         try:
-            with open(category_path + '/' + item, 'w') as file:
+            with open(category_path + '/' + item, encoding='utf-8', mode='w') as file:
                 file.write(content)
         except:
             resp = json.dumps(['error : failed to save'])
@@ -420,7 +418,7 @@ def delete_story():
         shutil.rmtree(default_path + story_folder)
 
         #update story mapping file
-        with open(default_path + stories_file, 'w') as file:
+        with open(default_path + stories_file, encoding='utf-8', mode='w') as file:
             for name, folder in story_map.items():
                 if name != story_name:
                     file.write("{} {}\n".format(folder, name))
@@ -457,7 +455,7 @@ def rename_item():
             category_folder = category_map[item_name] 
             
             #update mappings file
-            with open(default_path + story_folder + '/' + categories_file, 'w') as file:
+            with open(default_path + story_folder + '/' + categories_file, encoding='utf-8', mode='w') as file:
                 for name, folder in category_map.items():
                     if folder != category_folder:
                         file.write("{} {}\n".format(folder, name))
@@ -474,7 +472,7 @@ def rename_item():
             item_file = item_map[item_name]
 
             #update mapping
-            with open(category_path + item_names_file, 'w') as file:
+            with open(category_path + item_names_file, encoding='utf-8', mode='w') as file:
                 for name, folder in item_map.items():
                     if folder != item_file:
                         file.write("{} {}\n".format(folder, name))
