@@ -24,7 +24,18 @@
         </div>
         <div class="ui vertical footer segment" style="height: 200px">
             <div class="ui horizontal small divided link list">
-                <a class="item">Credits</a>
+                <a v-on:click="toggle_credits" class="item">Credits</a>
+            </div>
+            <div v-if="show_credits" class="ui content">
+                <p>This software uses the followin third party libraries:</p>
+                <p>vue: https://vuejs.org/ license: https://opensource.org/licenses/MIT </p>
+                <p>Ckeditor 5: https://ckeditor.com/ license: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html </p>
+                <p>bottle: https://bottlepy.org/docs/dev/ license: https://opensource.org/licenses/MIT</p> </p>
+                <p>axios: https://github.com/axios/axios license: https://opensource.org/licenses/MIT</p> </p>
+                <p>semantic ui: https://semantic-ui.com/ license: https://opensource.org/licenses/MIT</p> </p>
+                <p>vue-draggable-resizable: https://github.com/mauricius/vue-draggable-resizable license: https://opensource.org/licenses/MIT</p> </p>
+                <p>vuedraggable: https://github.com/SortableJS/Vue.Draggable license: https://opensource.org/licenses/MIT</p> </p>
+               
             </div>
         </div>
     </div>
@@ -75,11 +86,15 @@
                     p_top: 0,
                     p_right: 0,
                     moving_index: 0,
+                    show_credits: false,
                 }
             },            
             methods: {
                 close_editor: function (editor) {
                     this.$store.commit('delete_editor', { category: editor.category, item: editor.item })
+                },
+                toggle_credits: function () {
+                    this.show_credits = !this.show_credits;
                 },
                 start_move: function (index) {
                     this.moving = true

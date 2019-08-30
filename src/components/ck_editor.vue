@@ -90,7 +90,7 @@
                 dropdownView.buttonView.bind('label').to(command, 'value', value => {
                     // If no value is set on the command show 'Default' text.
                     // Use t() method to make that string translatable.
-                    return value ? value : '16'; // The Default size is '16'
+                    return value ? value : '11'; // The Default size is '16'
                 });
 
                 return dropdownView;

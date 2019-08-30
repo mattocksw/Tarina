@@ -24,7 +24,8 @@
         transition: 0.5s; /*0.5 second transition effect to slide in the sidenav*/
     }
     .hb:hover {
-        background-color: black;
+        background-color: gray;
+        border-radius: 5px;
     }
 </style>
 
@@ -60,7 +61,6 @@
                                             <div style="overflow-wrap: break-word;color:white" 
                                                  @contextmenu.prevent="$refs.menu.open($event, {category: category, file: item})" 
                                                  v-on:click="click_item(item)" 
-                                                 v-bind:class="{blue: item === selected_item}" 
                                                  class="ui hb header">{{item}}</div>
                                         </div>
                                     </draggable>
