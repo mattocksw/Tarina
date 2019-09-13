@@ -22,7 +22,7 @@
                 <div class="ui hidden divider"></div>
             </div>    
         </div>
-        <div class="ui vertical footer segment" style="height: 200px">
+        <div class="ui vertical footer segment" style="padding-top: 100vh;">
             <div class="ui horizontal small divided link list">
                 <a v-on:click="toggle_credits" class="item">Credits</a>
             </div>
@@ -35,7 +35,10 @@
                 <p>semantic ui: https://semantic-ui.com/ license: https://opensource.org/licenses/MIT</p> </p>
                 <p>vue-draggable-resizable: https://github.com/mauricius/vue-draggable-resizable license: https://opensource.org/licenses/MIT</p> </p>
                 <p>vuedraggable: https://github.com/SortableJS/Vue.Draggable license: https://opensource.org/licenses/MIT</p> </p>
-               
+                <p>vue-burger-menu: https://www.npmjs.com/package/vue-burger-menu license: https://opensource.org/licenses/MIT</p> </p>
+                <p>vue-js-Dialog: https://github.com/euvl/vue-js-modal/blob/master/src/Dialog.vue license: https://opensource.org/licenses/MIT</p> </p>
+                
+
             </div>
         </div>
     </div>

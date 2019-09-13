@@ -302,7 +302,11 @@
                     .then(response => {
                         this.editorData = response.data
                         if (this.editorData.length === 0) {
-                            this.editorData = "</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p>"
+                            var temp = ""
+                            for (var i = 0; i < 10; i++) {
+                                temp += '<p></p>'                              
+                            }                            
+                            this.editorData = temp
                         }
                     })
                     .catch(error => {

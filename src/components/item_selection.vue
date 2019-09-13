@@ -268,6 +268,7 @@
                                                 if (this.current_menu === "Categories") {
                                                     this.$store.commit('add_category', this.item_name)
                                                     this.current_menu = this.item_name
+                                                    this.items = []
                                                 }
                                                 else {
                                                     this.$store.commit('add_item', { category: this.current_menu, item: this.item_name })
