@@ -55,6 +55,12 @@ def create_default_categories(story_folder):
             os.mkdir('files/default/' + story_folder + '/' + category)
             file.write("{} {}\n".format(category, category))
 
+#return category folders for given story
+def get_gategories(story_name):
+    story_folder = get_story_folder(story_name)
+    categories = get_file_map(default_path + story_folder + '/' + categories_file)
+    return get_values(categories)
+
 def get_all_content_names(story_name):
     content = {}
 

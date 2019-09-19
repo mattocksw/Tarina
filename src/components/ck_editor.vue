@@ -1,6 +1,7 @@
 <style scoped>
     .hurray /deep/ .ck-editor__editable {
         max-height: var(--h);
+        font-size: 13pt;
     }
 </style>
 
@@ -15,7 +16,7 @@
 
 <template>
 
-    <div @click="handle_links" class="hurray" :style="cssProps">
+    <div class="hurray" :style="cssProps">
         <ckeditor :editor="editor" v-model="editorData" :config="editorConfig" @ready="onEditorReady"></ckeditor>
         <div class="ui bottom attached segment" style="border: none; padding-bottom: 0;">
             <div @mousedown="start_resize" class="ui two column stackable center aligned grid">
@@ -90,7 +91,7 @@
                 dropdownView.buttonView.bind('label').to(command, 'value', value => {
                     // If no value is set on the command show 'Default' text.
                     // Use t() method to make that string translatable.
-                    return value ? value : '11'; // The Default size is '16'
+                    return value ? value : '13'; // The Default size is '16'
                 });
 
                 return dropdownView;

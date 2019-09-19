@@ -51,7 +51,7 @@ def vue_return(folder, file):
 
        
 
-@route('/css')
+@route('/semantic_css.css')
 def return_css():
     return static_file('semantic.css', root='semantic/')
 
@@ -78,35 +78,75 @@ def get_stories():
         resp = json.dumps(['errors: could not load titles'])
         return HTTPResponse(status=500, body=resp)
     
-#return pdf
-@route('/story/<story_name>/<category>/<filename:path>')
-def download(story_name, category, filename):
-    try:               
-        #get chapters        
-        category_path = get_path_to_items(story_name, category)
-        item_map = get_file_map(category_path + item_names_file)
-
-        #write title
-        html_string = '<h1>' + story_name + '</h1>'
-
-        #append all chapters together
-        for name, folder in item_map.items():
-            with open(category_path + '/' + folder, encoding='utf-8', mode='r') as file:
-
-                #write chapter title
-                html_string += '<h2>' + name + '</h2>'
-
-                #write chapter contents
-                html_string += file.read()
-
-        #write the html
+#open html
+@route('/story/<story_name>')
+def download(story_name):
+    try:
+        #get current path  
         story_folder = get_story_folder(story_name)
-        with open(default_path + story_folder + '/story.html', encoding='utf-8', mode='w') as output:
+        path = default_path + story_folder + '/'
+
+        #get gategory map
+        categories = get_file_map(path + categories_file)             
+
+        #overwrite previous file
+        #head
+        html_string = '''   <!DOCTYPE html>
+                            <html lang="en">
+                            <head>
+                            <meta charset="utf-8">
+                            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                            <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+                            <link rel="stylesheet" href="/semantic_css.css" />
+                            </head> 
+                      '''
+        #start body
+        html_string += '''  <body>
+                            <div class="ui text container">
+
+                       '''
+        
+        #write title
+        html_string += '<h1>' + story_name + '</h1>'
+        with open(default_path + 'story.html', encoding='utf-8', mode='w') as output:
             output.write(html_string)
             output.flush()
+
+        #write all categories
+        for category, category_folder in categories.items():
+           
+            html_string = '<h2>' + category + '</h2>'
+
+            #get chapters        
+            category_path = path + category_folder + '/'
+            item_map = get_file_map(category_path + item_names_file)
+      
+            #append all chapters together
+            for name, folder in item_map.items():
+                with open(category_path + '/' + folder, encoding='utf-8', mode='r') as file:
+
+                    #write chapter title
+                    html_string += '<h3>' + name + '</h3>'
+
+                    #write chapter contents
+                    html_string += file.read()
+
+            #write the category to html
+            story_folder = get_story_folder(story_name)
+            with open(default_path + 'story.html', encoding='utf-8', mode='a') as output:
+                output.write(html_string)
+                output.flush()
         
+
+        #end body
+        html_string += '''  
+                            </div">
+                            </body>
+                       '''
+
         # Creating http response
-        return static_file('story.html', root=default_path + story_folder, download='story.html')
+        return static_file('story.html', root=default_path)
 
     except:
         resp = json.dumps(['errors: unexpected error'])
