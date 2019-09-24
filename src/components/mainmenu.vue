@@ -4,7 +4,7 @@
         <new_story />
         <a class="ui item" href="/">Select story</a>
         <a class="ui item" v-on:click="new_tab">New tab</a>
-        <a v-if="story_selected" class="ui item" v-bind:href="'/story/' + story_title"  target="_blank">Download story</a>
+        <a v-if="story_selected" class="ui item" v-bind:href="'/download/html/' + story_title"  download>Download story</a>
         <delete_story class="right menu" />
     </div>    
 </template>

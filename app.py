@@ -17,8 +17,8 @@ if __name__ == '__main__':
     
     try:
         #if files folder does not exists, create it
-        if(os.path.exists("files/default") == False):
-            os.makedirs("files/default")
+        if(os.path.exists("files/default/download") == False):
+            os.makedirs("files/default/download")       
     except:
         print("Failed to create required folders!!!")
 

@@ -111,7 +111,6 @@
     }
 
     function saveImage(data) {
-        console.log(data)
         var story = store.state.story_title        
         let formData = new FormData();
         formData.append("image", data);

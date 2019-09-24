@@ -9,6 +9,8 @@ import json
 from bottle import HTTPResponse
 
 default_path = "files/default/"
+download_path = "files/default/download/"
+download_assets_path = "files/default/download/assets"
 users_file = "users.txt"
 stories_file = "story_names.txt"
 categories_file = "category_names.txt"

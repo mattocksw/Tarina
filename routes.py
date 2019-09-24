@@ -15,14 +15,7 @@ from helper_functions import *
 import json
 from bottle import HTTPResponse, static_file
 
-#pip install pdfkit
-#on windows:
-    #download and install wkhtmltopdf
-    #add it's bin folder to path
-#on linux:
-    #sudo apt-get install wkhtmltopdf
-
-import pdfkit
+import lxml.html as LH
 
 @route('/')
 @route('/home')
@@ -78,9 +71,44 @@ def get_stories():
         resp = json.dumps(['errors: could not load titles'])
         return HTTPResponse(status=500, body=resp)
     
-#open html
-@route('/story/<story_name>')
+
+#download html
+@route('/download/html/<story_name>')
 def download(story_name):
+    
+    #create html file
+    if(create_html(story_name) == False):
+        resp = json.dumps(['errors: could not create html'])
+        return HTTPResponse(status=500, body=resp)
+
+    try:
+        #move images temporarily
+        story_folder = get_story_folder(story_name)
+        if(os.path.exists("files/default/download/assets") == False):
+            os.mkdir("files/default/download/assets") 
+
+        for file in os.listdir(default_path + story_folder):
+            if file != categories_file and os.path.isfile(default_path + story_folder + "/" + file):
+                shutil.move(default_path + story_folder + "/" + file, download_assets_path)
+
+        #make zip
+        shutil.make_archive("files/default/story", 'zip', "files/default/download")
+
+        #move files back
+        for file in os.listdir(download_assets_path):
+            shutil.move(download_assets_path + "/" + file,  default_path + story_folder)
+
+        #return file
+        return static_file('story.zip', root=default_path)
+
+    except:
+        resp = json.dumps(['errors: could not create html'])
+        return HTTPResponse(status=500, body=resp)
+    
+
+
+#create html
+def create_html(story_name):
     try:
         #get current path  
         story_folder = get_story_folder(story_name)
@@ -98,20 +126,45 @@ def download(story_name):
                             <meta http-equiv="X-UA-Compatible" content="IE=edge">
                             <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-                            <link rel="stylesheet" href="/semantic_css.css" />
+                            <style>
+                            body {
+                                background: rgb(204,204,204); 
+                            }
+                            page {
+                                background: white;
+                                display: block;
+                                margin: 0 auto;
+                                margin-bottom: 0.5cm;
+                                box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+                                padding: 0.5cm;
+                            }
+                            page[size="A4"] {  
+                                width: 21cm;
+                            }
+                            @media print {
+                            body, page {
+                                margin: 0;
+                                box-shadow: 0;
+                                }
+                            }
+                            img {
+                                max-width: 100%;
+                                height: auto;
+                            }
+                            </style>
+
                             </head> 
                       '''
         #start body
         html_string += '''  <body>
-                            <div class="ui text container">
+                            <page size="A4">
 
                        '''
         
         #write title
         html_string += '<h1>' + story_name + '</h1>'
-        with open(default_path + 'story.html', encoding='utf-8', mode='w') as output:
+        with open(download_path + 'story.html', encoding='utf-8', mode='w') as output:
             output.write(html_string)
-            output.flush()
 
         #write all categories
         for category, category_folder in categories.items():
@@ -132,25 +185,33 @@ def download(story_name):
                     #write chapter contents
                     html_string += file.read()
 
+            #fix links https://stackoverflow.com/questions/19357506/python-find-html-tags-and-replace-their-attributes
+            root = LH.fromstring(html_string)
+            for el in root.iter('img'):
+                bofero, delime, image_name = el.attrib['src'].rpartition('/')
+                for filename in os.listdir(default_path + story_folder):                                     
+                    if filename.startswith(image_name):
+                        el.attrib['src'] = 'assets/' + filename            
+            html_string = LH.tostring(root, pretty_print=True).decode('utf-8')
+
             #write the category to html
-            story_folder = get_story_folder(story_name)
-            with open(default_path + 'story.html', encoding='utf-8', mode='a') as output:
+            with open(download_path + 'story.html', encoding='utf-8', mode='a') as output:
                 output.write(html_string)
-                output.flush()
         
 
         #end body
-        html_string += '''  
-                            </div">
+        html_string = '''  
+                            </page>
                             </body>
-                       '''
+                       '''      
+        with open(download_path + 'story.html', encoding='utf-8', mode='a') as output:
+            output.write(html_string)
 
-        # Creating http response
-        return static_file('story.html', root=default_path)
+        return True
 
     except:
-        resp = json.dumps(['errors: unexpected error'])
-        return HTTPResponse(status=422, body=resp)
+        print("error making html file")
+        return False
 
 
 @route('/new_story', method='POST')
