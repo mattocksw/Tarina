@@ -2,9 +2,21 @@
     
     <div class="ui large horizontal menu">
         <new_story />
-        <a class="ui item" href="/">Select story</a>
-        <a class="ui item" v-on:click="new_tab">New tab</a>
-        <a v-if="story_selected" class="ui item" v-bind:href="'/download/html/' + story_title"  download>Download story</a>
+        <div class="ui simple dropdown item">
+            Start page
+            <div class="attached menu" style="border-radius: 0px; border: 0px;">
+                <a class="ui item" v-on:click="new_tab">New tab</a>
+                <a class="ui item" href="/">Current tab</a>
+            </div>
+        </div>           
+        <div v-if="story_selected" class="ui simple dropdown item">
+            Download story
+            <div class="attached menu" style="border-radius: 0px; border: 0px;">
+                <a class="item" v-bind:href="'/download/html/' + story_title" download>Html</a>
+                <a class="item" v-bind:href="'/download/docx/' + story_title" download>Docx</a>
+            </div>
+        </div>
+        
         <delete_story class="right menu" />
     </div>    
 </template>

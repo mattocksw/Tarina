@@ -30,6 +30,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.py" />
+    <Compile Include="convertHtml.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="routes.py" />
     <Compile Include="helper_functions.py">
       <SubType>Code</SubType>

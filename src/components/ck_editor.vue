@@ -42,13 +42,14 @@
     import ItalicPlugin from '@ckeditor/ckeditor5-basic-styles/src/italic';
     import UnderlinePlugin from '@ckeditor/ckeditor5-basic-styles/src/underline';
     import StrikethroughPlugin from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
-    import CodePlugin from '@ckeditor/ckeditor5-basic-styles/src/code';
+    //import CodePlugin from '@ckeditor/ckeditor5-basic-styles/src/code';
     import SubscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/subscript';
     import SuperscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/superscript';
     import HeadingPlugin from '@ckeditor/ckeditor5-heading/src/heading';
     import ImagePlugin from '@ckeditor/ckeditor5-image/src/image';
-    import ImageCaptionPlugin from '@ckeditor/ckeditor5-image/src/imagecaption';
+    //import ImageCaptionPlugin from '@ckeditor/ckeditor5-image/src/imagecaption';
     import ImageStylePlugin from '@ckeditor/ckeditor5-image/src/imagestyle';
+    import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
     import ImageToolbarPlugin from '@ckeditor/ckeditor5-image/src/imagetoolbar';
     import ImageUploadPlugin from '@ckeditor/ckeditor5-image/src/imageupload';
     import LinkPlugin from '@ckeditor/ckeditor5-link/src/link';
@@ -182,15 +183,14 @@
                             ItalicPlugin,
                             UnderlinePlugin,
                             StrikethroughPlugin,
-                            CodePlugin,
                             SubscriptPlugin,
                             SuperscriptPlugin,
                             HeadingPlugin,
                             ImagePlugin,
-                            ImageCaptionPlugin,
                             ImageStylePlugin,
                             ImageToolbarPlugin,
                             ImageUploadPlugin,
+                            ImageResize,
                             LinkPlugin,
                             ListPlugin,
                             ParagraphPlugin,
@@ -213,7 +213,7 @@
                                 '|',
                                 'fontSizeDropdown', 'fontFamily',                                
                                 'alignment:left', 'alignment:right', 'alignment:center', 'alignment:justify',
-                                'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript',
+                                'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript',
                                 'fontColor', 'fontBackgroundColor',
                                 'link',
                                 'bulletedList',
@@ -239,7 +239,6 @@
                         image: {
                             toolbar: [
                                 'imageStyle:full',
-                                'imageStyle:side',
                                 'imageStyle:alignLeft',
                                 'imageStyle:alignCenter',
                                 'imageStyle:alignRight',                                

@@ -5,7 +5,7 @@
         <!--Menu and main Required by sidebar -->
 
         <div class="ui center aligned basic segment">
-            <h1 id="title" class="ui huge teal header"> {{story_title}} </h1>
+            <h1 id="title" class="ui teal header" style="font-size: 48px;"> {{story_title}} </h1>
         </div>
 
         <mainmenu />

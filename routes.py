@@ -11,11 +11,10 @@ from bottle import route, view, request
 from datetime import datetime
 
 from helper_functions import *
+from convertHtml import *
 
 import json
 from bottle import HTTPResponse, static_file
-
-import lxml.html as LH
 
 @route('/')
 @route('/home')
@@ -73,9 +72,22 @@ def get_stories():
     
 
 #download html
-@route('/download/html/<story_name>')
-def download(story_name):
+@route('/download/<format>/<story_name>')
+def download(format, story_name):
     
+    if(format == "docx"):
+        try:
+            if(create_docx(story_name) == False):
+                resp = json.dumps(['errors: could not create docx'])
+                return HTTPResponse(status=500, body=resp)
+
+            #return file
+            return static_file('story.docx', root=default_path, download="story.docx")
+
+        except:
+            resp = json.dumps(['errors: could not create docx'])
+            return HTTPResponse(status=500, body=resp)
+
     #create html file
     if(create_html(story_name) == False):
         resp = json.dumps(['errors: could not create html'])
@@ -99,119 +111,11 @@ def download(story_name):
             shutil.move(download_assets_path + "/" + file,  default_path + story_folder)
 
         #return file
-        return static_file('story.zip', root=default_path)
+        return static_file('story.zip', root=default_path, download="story.zip")
 
     except:
         resp = json.dumps(['errors: could not create html'])
         return HTTPResponse(status=500, body=resp)
-    
-
-
-#create html
-def create_html(story_name):
-    try:
-        #get current path  
-        story_folder = get_story_folder(story_name)
-        path = default_path + story_folder + '/'
-
-        #get gategory map
-        categories = get_file_map(path + categories_file)             
-
-        #overwrite previous file
-        #head
-        html_string = '''   <!DOCTYPE html>
-                            <html lang="en">
-                            <head>
-                            <meta charset="utf-8">
-                            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                            <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-                            <style>
-                            body {
-                                background: rgb(204,204,204); 
-                            }
-                            page {
-                                background: white;
-                                display: block;
-                                margin: 0 auto;
-                                margin-bottom: 0.5cm;
-                                box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
-                                padding: 0.5cm;
-                            }
-                            page[size="A4"] {  
-                                width: 21cm;
-                            }
-                            @media print {
-                            body, page {
-                                margin: 0;
-                                box-shadow: 0;
-                                }
-                            }
-                            img {
-                                max-width: 100%;
-                                height: auto;
-                            }
-                            </style>
-
-                            </head> 
-                      '''
-        #start body
-        html_string += '''  <body>
-                            <page size="A4">
-
-                       '''
-        
-        #write title
-        html_string += '<h1>' + story_name + '</h1>'
-        with open(download_path + 'story.html', encoding='utf-8', mode='w') as output:
-            output.write(html_string)
-
-        #write all categories
-        for category, category_folder in categories.items():
-           
-            html_string = '<h2>' + category + '</h2>'
-
-            #get chapters        
-            category_path = path + category_folder + '/'
-            item_map = get_file_map(category_path + item_names_file)
-      
-            #append all chapters together
-            for name, folder in item_map.items():
-                with open(category_path + '/' + folder, encoding='utf-8', mode='r') as file:
-
-                    #write chapter title
-                    html_string += '<h3>' + name + '</h3>'
-
-                    #write chapter contents
-                    html_string += file.read()
-
-            #fix links https://stackoverflow.com/questions/19357506/python-find-html-tags-and-replace-their-attributes
-            root = LH.fromstring(html_string)
-            for el in root.iter('img'):
-                bofero, delime, image_name = el.attrib['src'].rpartition('/')
-                for filename in os.listdir(default_path + story_folder):                                     
-                    if filename.startswith(image_name):
-                        el.attrib['src'] = 'assets/' + filename            
-            html_string = LH.tostring(root, pretty_print=True).decode('utf-8')
-
-            #write the category to html
-            with open(download_path + 'story.html', encoding='utf-8', mode='a') as output:
-                output.write(html_string)
-        
-
-        #end body
-        html_string = '''  
-                            </page>
-                            </body>
-                       '''      
-        with open(download_path + 'story.html', encoding='utf-8', mode='a') as output:
-            output.write(html_string)
-
-        return True
-
-    except:
-        print("error making html file")
-        return False
 
 
 @route('/new_story', method='POST')
@@ -476,6 +380,13 @@ def save_item():
         item_name = request.json["item_name"]
         content = request.json["content"]
        
+        #return if there is nothing to save
+        if not content:
+            return HTTPResponse(status=200)
+        if content.isspace():
+            return HTTPResponse(status=200)
+
+
         #get item names
         category_path = get_path_to_items(story_name, category)
         item_map = get_file_map(category_path + item_names_file)      
@@ -494,9 +405,8 @@ def save_item():
         except:
             resp = json.dumps(['error : failed to save'])
             return HTTPResponse(status=500, body=resp)
-
-        theBody = json.dumps(content)
-        return HTTPResponse(status=200, body=theBody)
+        
+        return HTTPResponse(status=200)
     except:
         resp = json.dumps(['error : failed to get story'])
         return HTTPResponse(status=500, body=resp)
