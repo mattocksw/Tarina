@@ -7,6 +7,7 @@ import re
 import colorsys
 
 import lxml.html
+from lxml import etree
 from docx import Document, opc, oxml
 from docx.shared import Cm, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH 
@@ -33,9 +34,27 @@ class DocText:
         self.bullet = False
         self.number_list = False
         
+    def continue_styles(self, other):
+        if(other.bold):
+            self.bold = True
+        if(other.italic):
+            self.italic = True
+        if(other.underline):
+            self.underline = True
+        if(other.strikethrough):
+            self.strikethrough = True
+        if(other.subscript):
+            self.subscript = True
+        if(other.superscript):
+            self.superscript = True
+
+        self.font = other.font
+        self.font_size = other.font_size
+        self.color = other.color
+
 
     #writes text in given paragraph p in document
-    def write(self, p, document):
+    def write(self, p):
         
         #add text
         run = p.add_run(self.text)       
@@ -59,21 +78,11 @@ class DocText:
             add_hyperlink(p, self.link, self.text)
 
 
-#reads the text of element and all its children recursively, and creates a list of DocText objects from them
-def get_text(html_element, text_list = []):
-
-    #create new style collector
-    t = DocText()
- 
+# add styles from element to DocText t
+def add_span_styles(html_element, t):
     #get style
     style = get_style(html_element)
-    
-    #get text
-    try:
-        t.text = html_element.text.replace("\xa0", "")
-    except:
-        pass
-    
+
     if(style):
         #get font
         font = get_value_from_string(style, "font-family")
@@ -95,7 +104,7 @@ def get_text(html_element, text_list = []):
         hsl_color = get_value_from_string(style, "color")
         if(hsl_color):
             color = re.findall(r'\d+', hsl_color) #get all numbers https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python
-            rgb_color = colorsys.hls_to_rgb(float(color[0])/255.0, float(color[2])/100.0, float(color[1])/100.0) #colorsys expects values in 0-1 range
+            rgb_color = colorsys.hls_to_rgb(float(color[0])/360.0, float(color[2])/100.0, float(color[1])/100.0) #colorsys expects values in 0-1 range
             t.color = RGBColor(int(rgb_color[0]*255.0), int(rgb_color[1]*255.0), int(rgb_color[2]*255.0))
 
         #get text highlight color (not able to set custom color, ignored)
@@ -105,7 +114,9 @@ def get_text(html_element, text_list = []):
             #rgb_color = colorsys.hls_to_rgb(float(color[0])/100.0, float(color[1])/100.0, float(color[2])/100.0) #colorsys expects values in 0-1 range
             #t.highlight = RGBColor(int(rgb_color[0]*100), int(rgb_color[1]*100), int(rgb_color[2]*100))
 
-              
+
+# add styles from element to DocText t
+def add_tag_styles(html_element, t):
     #get link ()
     #if(html_element.tag == "a"):
     #    t.link = decoration.attrib['href']
@@ -128,16 +139,181 @@ def get_text(html_element, text_list = []):
     elif(html_element.tag == "sup"):
         t.superscript = True
 
+# add styles from element to DocText t
+def remove_tag_styles(html_element, t):
+    if(html_element.tag == "strong"):
+        t.bold = False
+
+    elif(html_element.tag == "i"):
+        t.italic = False
+
+    elif(html_element.tag == "u"):
+        t.underline = False
+
+    elif(html_element.tag == "s"):
+        t.strikethrough = False
+
+    elif(html_element.tag == "sub"):
+        t.subscript = False
+
+    elif(html_element.tag == "sup"):
+        t.superscript = False
+
+
+#find string between tags from string string_form. return string. First character included in string
+def get_next_text(start_i, string_form):
+     
+    end_i = start_i[0] + 1
+    #read until child starts
+    while string_form[end_i] != "<":
+        end_i += 1
+    #get string and update index
+    s = string_form[start_i[0]:end_i].replace("\xa0", "")
+    start_i[0] = end_i
+    #return string
+    return s
+
+#advance index over <> Expect first character to be <
+def skip_tag(start_i, string_form): 
+
+    #read through the tag itself
+    while string_form[start_i[0]] != ">":
+        start_i[0] += 1
+
+    #advance to next character
+    start_i[0] += 1
+
+#advance index in string until tag skipped
+def skip_tags(start_i, string_form):
+   
+    #skip child tag
+    skip_tag(start_i, string_form)
+    num_open_tags = 1
+
+    #advance until reaches same level tag
+    while num_open_tags > 0:        
+        if(string_form[start_i[0]] == "<"):
+            if string_form[start_i[0]+1] == "/":
+                num_open_tags -= 1
+            else:
+                num_open_tags += 1
+            skip_tag(start_i, string_form)
+        else:
+            start_i[0] += 1
+
+#Wraps naked text in html tags in span for easier processing
+#FIX: currenly expects no spaces after tags in the html which comes directly from ckeditor. Might brake    
+def wrap_text(html_element):
+    
+    elements = list(html_element) 
+        
+    #wrap text in spans if it has children
+    if len(elements): 
+
+        #get string from html and remove what's currently there
+        string_form = lxml.html.tostring(html_element).decode('utf-8')
+        html_element.text = ""    
+
+        #skip parent element tag
+        start_i = [0]
+        skip_tag(start_i, string_form)
+
+        insert_index = 0
+        children_skipped = 0
+        while start_i[0] < len(string_form):
+            #if starts with string, read it
+            if(string_form[start_i[0]] != "<"):        
+                s = get_next_text(start_i, string_form)
+
+                #insert the element 
+                e = etree.Element("span")
+                e.text = s
+                if(insert_index == len(list(html_element))):
+                    html_element.append(e)
+                else:
+                    html_element.insert(insert_index, e)
+                insert_index+=1
+
+            else: #skip child
+                if(children_skipped >= len(elements)):
+                    break #break if we encounter a tag after finishing all childen tags already. Should be main parent tag
+                else:
+                    skip_tags(start_i, string_form)
+                    insert_index+=1
+                    children_skipped += 1
+
+
+#reads the text of element and all its children recursively, and creates a list of DocText objects from them
+
+def get_text(html_element, text_list = [], previousText = DocText()):
+
+    #add spans to text
+    if(html_element.text):
+        wrap_text(html_element)
+
+
+    #create new style collector
+    t = DocText()
+    t.continue_styles(previousText)
+
+    if(html_element.text):
+        t.text = html_element.text.replace("\xa0", "")
+ 
+    #get styles from span
+    add_span_styles(html_element, t)
+          
+    #get styles from tag
+    add_tag_styles(html_element, t)
+
     text_list.append(t)
 
     #recursively add styles
     for element in html_element:
-        text_list = get_text(element, text_list)
+        text_list = get_text(element, text_list,t) 
 
     return text_list
 
 
+def get_rowspan(table_column):    
+
+    try:
+        if not table_column.attrib:
+            return 1
+        for attrib, value in table_column.items():
+            if(attrib == "rowspan"):
+                return int(value)
+    except:
+        return 1
+
+def get_colspan(table_row):
+    try:
+        if not table_row.attrib:
+            return 1
+        for attrib, value in table_row.items():
+            if(attrib == "colspan"):
+                return int(value)
+    except:
+        return 1
     
+#adds alignment to paragraph defined by styles in text_list
+def add_alignment(text_list, p):
+    #add alignment
+    if(text_list):
+        if(text_list[0].alignment == "justify"):
+            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        elif(text_list[0].alignment == "right"):
+            p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        elif(text_list[0].alignment == "center"):
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        else:
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+def get_tbody(element):
+    for tag in element:
+        if tag.tag == "tbody":
+            return tag
+    return element[0]
+
 def iterate_html(html, document, story_folder):
     for element in html:
         
@@ -156,7 +332,66 @@ def iterate_html(html, document, story_folder):
                 
                 #handle tables
                 if figure.tag == "table":
-                    pass
+
+                    tbody = get_tbody(figure)
+                        
+                    
+                    #get dimensions
+                    rows = 0
+                    cols = 0
+                    col_once = False
+                    for row in tbody:
+                        rows += get_rowspan(row)
+                        if col_once == False:
+                            col_once = True
+                            for col in row:
+                                cols += get_colspan(col)
+                                
+                    #make table
+                    table = document.add_table(rows = rows, cols = cols)
+                    for idr, row in enumerate(tbody):
+                        for idc, col in enumerate(row):                                                        
+                            
+                            cell = table.cell(idr,idc)
+                                                           
+                            if col.tag in ["p", "h2","h3","h4", "td"]:
+
+                                text_list = get_text(col, [], DocText())
+
+                                if col.tag in ["p","td"]:
+                                    p = cell.add_paragraph()
+                                elif col.tag == "h2":
+                                    p = cell.add_heading('', level=1)
+                                elif col.tag == "h3":
+                                    p = cell.add_heading('', level=2)
+                                elif col.tag == "h4":
+                                    p = cell.add_heading('', level=3)
+
+                                add_alignment(text_list, p)
+
+                                    
+                                for text in text_list:
+                                    text.write(p)
+                            
+                            elif col.tag in ["ul","ol"]:
+                                for list_element in col:
+                                    text_list = get_text(list_element, [], DocText())
+                                    if(col.tag == "ul"):
+                                        p = cell.add_paragraph(style='List Bullet')
+                                    elif(col.tag == "ol"):
+                                        p = cell.add_paragraph(style='List Number')           
+            
+                                    for text in text_list:
+                                        text.write(p)
+
+                            elif element.tag == "figure":
+                                #handle image
+                                for image_in_table in col:
+                                    p = cell.add_paragraph()
+                                    run = p.add_run()
+                                    add_image(image_in_table, width / cols, run, story_folder)
+
+                            
                 
                 #handle images
                 elif figure.tag == "img":                   
@@ -164,7 +399,7 @@ def iterate_html(html, document, story_folder):
 
         #handle text
         elif element.tag in ["p", "h2","h3","h4"]:            
-            text_list = get_text(element, [])
+            text_list = get_text(element, [], DocText())
             #add main paragraph
             if element.tag == "p":
                 p = document.add_paragraph()
@@ -175,30 +410,21 @@ def iterate_html(html, document, story_folder):
             elif element.tag == "h4":
                 p = document.add_heading('', level=3)
 
-            #add alignment
-            if(text_list):
-                if(text_list[0].alignment == "justify"):
-                    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-                elif(text_list[0].alignment == "right"):
-                    p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                elif(text_list[0].alignment == "center"):
-                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                else:
-                    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            add_alignment(text_list, p)
             
             for text in text_list:
-                text.write(p,document)
+                text.write(p)
 
         elif element.tag in ["ul","ol"]:
             for list_element in element:
-                text_list = get_text(list_element, [])
+                text_list = get_text(list_element, [], DocText())
                 if(element.tag == "ul"):
                     p = document.add_paragraph(style='List Bullet')
                 elif(element.tag == "ol"):
                     p = document.add_paragraph(style='List Number')           
             
                 for text in text_list:
-                    text.write(p,document)
+                    text.write(p)
 
 #converts story and writes docx document in downloads folder
 def create_docx(story_name):
@@ -228,13 +454,14 @@ def create_docx(story_name):
       
             #append all chapters together
             for name, folder in item_map.items():
-                with open(category_path + '/' + folder, encoding='utf-8', mode='r') as file:
+                if(os.path.isfile(category_path + '/' + folder)):
+                    with open(category_path + '/' + folder, encoding='utf-8', mode='r') as file:
 
-                    #write chapter title
-                    document.add_heading(name, 2)
+                        #write chapter title
+                        document.add_heading(name, 2)   
 
-                    #travel through html
-                    iterate_html(lxml.html.fromstring(file.read()), document, story_folder)                                  
+                        #travel through html
+                        iterate_html(lxml.html.fromstring(file.read()), document, story_folder)                                  
            
         document.save(default_path + 'story.docx')
         return True
@@ -243,8 +470,6 @@ def create_docx(story_name):
         print("error making html file")
         return False
                 
-
-                                  
 
 #return the inline style for element
 def get_style(element):
@@ -375,13 +600,14 @@ def create_html(story_name):
       
             #append all chapters together
             for name, folder in item_map.items():
-                with open(category_path + '/' + folder, encoding='utf-8', mode='r') as file:
+                if(os.path.isfile(category_path + '/' + folder)):
+                    with open(category_path + '/' + folder, encoding='utf-8', mode='r') as file:
 
-                    #write chapter title
-                    html_string += '<h3>' + name + '</h3>'
+                        #write chapter title
+                        html_string += '<h3>' + name + '</h3>'
 
-                    #write chapter contents
-                    html_string += file.read()
+                        #write chapter contents
+                        html_string += file.read()
 
             #fix links https://stackoverflow.com/questions/19357506/python-find-html-tags-and-replace-their-attributes
             root = lxml.html.fromstring(html_string)

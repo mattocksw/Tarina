@@ -225,7 +225,7 @@
                             ]
                         },
                         table: {
-                            contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+                            contentToolbar: ['tableColumn', 'tableRow']
                         },
                         simpleImageUpload: {                            
                             //image upload
