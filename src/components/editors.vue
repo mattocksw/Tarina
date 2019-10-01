@@ -37,7 +37,8 @@
                 <p>vuedraggable: https://github.com/SortableJS/Vue.Draggable license: https://opensource.org/licenses/MIT</p> </p>
                 <p>vue-burger-menu: https://www.npmjs.com/package/vue-burger-menu license: https://opensource.org/licenses/MIT</p> </p>
                 <p>vue-js-Dialog: https://github.com/euvl/vue-js-modal/blob/master/src/Dialog.vue license: https://opensource.org/licenses/MIT</p> </p>
-                
+                <p>ckeditor5-simple-image-upload-plugin: https://github.com/SamhammerAG/ckeditor5-simple-image-upload-plugin license: https://opensource.org/licenses/MIT</p> </p>
+
 
             </div>
         </div>

@@ -52,6 +52,7 @@
     import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
     import ImageToolbarPlugin from '@ckeditor/ckeditor5-image/src/imagetoolbar';
     import ImageUploadPlugin from '@ckeditor/ckeditor5-image/src/imageupload';
+    import FileRepository from '@ckeditor/ckeditor5-upload/src/filerepository';
     import LinkPlugin from '@ckeditor/ckeditor5-link/src/link';
     import ListPlugin from '@ckeditor/ckeditor5-list/src/list';
     import ParagraphPlugin from '@ckeditor/ckeditor5-paragraph/src/paragraph';
@@ -64,7 +65,6 @@
     import PasteFromOfficePlugin from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
     import TablePlugin from '@ckeditor/ckeditor5-table/src/table';
     import TableToolbarPlugin from '@ckeditor/ckeditor5-table/src/tabletoolbar';
-    import SimpleUploadImagePlugin from '@samhammer/ckeditor5-simple-image-upload-plugin/src/simple-upload-image-plugin'
 
 
     //https://github.com/ckeditor/ckeditor5-font/issues/23
@@ -100,6 +100,37 @@
         }
     }
 
+    export class SimpleUploadImageAdapter {
+        constructor(loader, config) {
+            this.loader = loader;
+            this.config = config;
+        }
+
+        upload() {
+            const uploadHook = this.config.get('simpleImageUpload').onUpload;
+            return this.loader.file.then(file => uploadHook(file).then(url => ({ default: url })));
+        }
+
+        abort() {
+            const abortHook = this.config.get('simpleImageUpload').onAbort || (() => null);
+            abortHook();
+        }
+    }
+
+    export class SimpleUploadImagePlugin extends Plugin {
+
+        static get requires() {
+            return [FileRepository];
+        }
+
+        static get pluginName() {
+            return 'SimpleUploadImage';
+        }
+
+        init() {
+            this.editor.plugins.get('FileRepository').createUploadAdapter = loader => new SimpleUploadImageAdapter(loader, this.editor.config);
+        }
+    }
 
     function saveData(data, story, target) {
         return Vue.prototype.axios.post('/save',
