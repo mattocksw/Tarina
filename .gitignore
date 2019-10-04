@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*.vs
+
 # C extensions
 *.so
 
@@ -108,11 +110,13 @@ files/
 
 obj/
 pyinstaller_dist/
+pyinstaller.bat
 
 #vuecli stuff
 .DS_Store
 node_modules
 /dist
+*.spec
 
 # local env files
 .env.local

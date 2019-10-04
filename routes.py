@@ -74,7 +74,6 @@ def get_stories():
 #download html
 @route('/download/<format>/<story_name>')
 def download(format, story_name):
-    
     if(format == "docx"):
         try:
             if(create_docx(story_name) == False):

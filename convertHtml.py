@@ -314,6 +314,13 @@ def get_tbody(element):
             return tag
     return element[0]
 
+#return figure if element has such direct child. otherwise return input
+def get_figure(element):
+    for tag in element:
+        if tag.tag == "figure":
+            return tag
+    return element
+
 def iterate_html(html, document, story_folder):
     for element in html:
         
@@ -353,8 +360,10 @@ def iterate_html(html, document, story_folder):
                         for idc, col in enumerate(row):                                                        
                             
                             cell = table.cell(idr,idc)
-                                                           
-                            if col.tag in ["p", "h2","h3","h4", "td"]:
+                               
+                            col = get_figure(col)
+
+                            if col.tag in ["p", "h2","h3","h4", "td"]:                               
 
                                 text_list = get_text(col, [], DocText())
 
@@ -387,9 +396,10 @@ def iterate_html(html, document, story_folder):
                             elif element.tag == "figure":
                                 #handle image
                                 for image_in_table in col:
-                                    p = cell.add_paragraph()
-                                    run = p.add_run()
-                                    add_image(image_in_table, width / cols, run, story_folder)
+                                    if(image_in_table.tag == "img"):
+                                        p = cell.add_paragraph()
+                                        run = p.add_run()
+                                        add_image(image_in_table, width / cols, run, story_folder)
 
                             
                 
@@ -525,10 +535,14 @@ def add_hyperlink(paragraph, url, text):
     return hyperlink
 
 def add_image(img_element, width, document, story_folder):
-    bofero, delime, image_name = img_element.attrib['src'].rpartition('/')
-    for filename in os.listdir(default_path + story_folder):                                     
-        if filename.startswith(image_name):            
-            document.add_picture(default_path + story_folder + "/" + filename, width=width)
+    try:
+        bofero, delime, image_name = img_element.attrib['src'].rpartition('/')
+        for filename in os.listdir(default_path + story_folder):                                     
+            if filename.startswith(image_name):   
+                print(default_path + story_folder + "/" + filename, width, document)
+                document.add_picture(default_path + story_folder + "/" + filename, width=width)
+    except:
+        print("image could not be added to docx")
 
 
 #create html that includes all folders and files from the story. The result expexts that images are located in assets folder
