@@ -22,6 +22,10 @@ if __name__ == '__main__':
     except:
         print("Failed to create required folders!!!")
 
-    webbrowser.open('http://localhost:8181')
-    bottle.run(host='localhost', port=8181)
+    try:
+        webbrowser.open('http://localhost:8181')
+    except:
+        pass
+
+    bottle.run(host='localhost', port=8181, server="waitress")
     

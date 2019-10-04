@@ -364,6 +364,17 @@
                     }
                 },
                 onEditorReady: function (editor) {
+
+                    //set off autocomplete and others
+                    editor.editing.view.change(writer => {
+                        const viewEditableRoot = editor.editing.view.document.getRoot();
+
+                        //writer.setAttribute('spellcheck', 'false', viewEditableRoot);
+                        writer.setAttribute('autocomplete', 'off', viewEditableRoot);
+                        writer.setAttribute('autocorrect', 'off', viewEditableRoot);
+                        writer.setAttribute('autocapitalize', 'off', viewEditableRoot);
+                    });
+
                     this.displayStatus(editor)
                     //this.listenKeyup(editor)
                     //this.open_link(editor)
