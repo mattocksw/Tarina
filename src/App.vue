@@ -53,7 +53,23 @@
                 },
                 computed: mapState({
                     story_title: 'story_title'
-                })
+                }),
+                mounted: function ()
+                {
+                    //stop ctrl+s
+                    window.addEventListener('keydown', this.control_plus)
+                },
+                methods:
+                {
+                    //stop ctrl+s
+                    control_plus: function (event) {
+                        if (event.ctrlKey) {
+                            if (event.key == "s")
+                                event.preventDefault()
+                        }
+
+                    },
+                }
 
             }
     </script>

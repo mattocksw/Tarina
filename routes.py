@@ -439,6 +439,39 @@ def delete_story():
         resp = json.dumps(['error : failed to delete story'])
         return HTTPResponse(status=500, body=resp)
 
+@route('/rename_story', method='POST')
+def rename_story():
+    try:
+        story_name = request.json["story_name"]
+        new_name = request.json["new_name"]
+
+        resp = validate_name(new_name)
+        if resp != None:
+            return resp
+
+        
+
+        #update mappings file
+        story_map = get_file_map(default_path + stories_file)
+        story_folder = story_map[story_name]
+
+        #check that item does not exist
+        if new_name in story_map:
+            resp = json.dumps(['error: name exists'])
+            return HTTPResponse(status=422, body=resp)
+
+        with open(default_path + stories_file, encoding='utf-8', mode='w') as file:
+            for name, folder in story_map.items():
+                if folder != story_folder:
+                    file.write("{} {}\n".format(folder, name))
+                else:
+                    file.write("{} {}\n".format(folder, new_name))
+
+        resp = json.dumps(['errors: '''])
+        return HTTPResponse(status=200, body=resp)
+    except:
+        resp = json.dumps(['error: unexpected error renaming item'])
+        return HTTPResponse(status=500, body=resp)
 
 @route('/rename_item', method='POST')
 def rename_item():
@@ -464,6 +497,11 @@ def rename_item():
             category_map = get_file_map(default_path + story_folder + '/' + categories_file)
             category_folder = category_map[item_name] 
             
+            #check that item does not exist
+            if new_name in category_map:
+                resp = json.dumps(['error: name exists'])
+                return HTTPResponse(status=422, body=resp)
+
             #update mappings file
             with open(default_path + story_folder + '/' + categories_file, encoding='utf-8', mode='w') as file:
                 for name, folder in category_map.items():
@@ -481,6 +519,11 @@ def rename_item():
             item_map = get_file_map(category_path + item_names_file)
             item_file = item_map[item_name]
 
+            #check that item does not exist
+            if new_name in item_map:
+                resp = json.dumps(['error: name exists'])
+                return HTTPResponse(status=422, body=resp)
+
             #update mapping
             with open(category_path + item_names_file, encoding='utf-8', mode='w') as file:
                 for name, folder in item_map.items():
@@ -496,5 +539,5 @@ def rename_item():
         resp = json.dumps(['errors: '''])
         return HTTPResponse(status=200, body=resp)
     except:
-        resp = json.dumps(['error: unexpected error creating item'])
+        resp = json.dumps(['error: unexpected error renaming item'])
         return HTTPResponse(status=500, body=resp)

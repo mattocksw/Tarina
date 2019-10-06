@@ -539,7 +539,6 @@ def add_image(img_element, width, document, story_folder):
         bofero, delime, image_name = img_element.attrib['src'].rpartition('/')
         for filename in os.listdir(default_path + story_folder):                                     
             if filename.startswith(image_name):   
-                print(default_path + story_folder + "/" + filename, width, document)
                 document.add_picture(default_path + story_folder + "/" + filename, width=width)
     except:
         print("image could not be added to docx")

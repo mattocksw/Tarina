@@ -2,13 +2,13 @@
     
     <div class="ui large horizontal menu">
         <new_story />
-        <div class="ui simple dropdown item">
+        <div v-if="story_selected" class="ui simple dropdown item">
             Start page
             <div class="attached menu" style="border-radius: 0px; border: 0px;">
                 <a class="ui item" v-on:click="new_tab">New tab</a>
                 <a class="ui item" href="/">Current tab</a>
             </div>
-        </div>           
+        </div>
         <div v-if="story_selected" class="ui simple dropdown item">
             Download story
             <div class="attached menu" style="border-radius: 0px; border: 0px;">
@@ -16,8 +16,9 @@
                 <a class="item" v-bind:href="'/download/docx/' + story_title" download>Docx</a>
             </div>
         </div>
-        
+
         <delete_story class="right menu" />
+        
     </div>    
 </template>
 
@@ -31,6 +32,7 @@
             data: function () {
                 return {
                     errors: [],
+                    item_name: null
                 }
             },
             computed: mapState({
@@ -47,7 +49,8 @@
             {
                 new_tab: function () {
                     window.open("/")
-                }
+                },
+                
             },
         }
 </script>

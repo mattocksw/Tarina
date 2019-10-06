@@ -30,14 +30,15 @@
                 <p>This software uses the followin third party libraries:</p>
                 <p>vue: https://vuejs.org/ license: https://opensource.org/licenses/MIT </p>
                 <p>Ckeditor 5: https://ckeditor.com/ license: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html </p>
-                <p>bottle: https://bottlepy.org/docs/dev/ license: https://opensource.org/licenses/MIT</p> </p>
-                <p>axios: https://github.com/axios/axios license: https://opensource.org/licenses/MIT</p> </p>
-                <p>semantic ui: https://semantic-ui.com/ license: https://opensource.org/licenses/MIT</p> </p>
-                <p>vue-draggable-resizable: https://github.com/mauricius/vue-draggable-resizable license: https://opensource.org/licenses/MIT</p> </p>
-                <p>vuedraggable: https://github.com/SortableJS/Vue.Draggable license: https://opensource.org/licenses/MIT</p> </p>
-                <p>vue-burger-menu: https://www.npmjs.com/package/vue-burger-menu license: https://opensource.org/licenses/MIT</p> </p>
-                <p>vue-js-Dialog: https://github.com/euvl/vue-js-modal/blob/master/src/Dialog.vue license: https://opensource.org/licenses/MIT</p> </p>
-                <p>ckeditor5-simple-image-upload-plugin: https://github.com/SamhammerAG/ckeditor5-simple-image-upload-plugin license: https://opensource.org/licenses/MIT</p> </p>
+                <p>bottle: https://bottlepy.org/docs/dev/ license: https://opensource.org/licenses/MIT </p>
+                <p>axios: https://github.com/axios/axios license: https://opensource.org/licenses/MIT </p>
+                <p>semantic ui: https://semantic-ui.com/ license: https://opensource.org/licenses/MIT </p>
+                <p>vue-draggable-resizable: https://github.com/mauricius/vue-draggable-resizable license: https://opensource.org/licenses/MIT </p>
+                <p>vuedraggable: https://github.com/SortableJS/Vue.Draggable license: https://opensource.org/licenses/MIT </p>
+                <p>vue-burger-menu: https://www.npmjs.com/package/vue-burger-menu license: https://opensource.org/licenses/MIT </p>
+                <p>vue-js-Dialog: https://github.com/euvl/vue-js-modal/blob/master/src/Dialog.vue license: https://opensource.org/licenses/MIT </p>
+                <p>ckeditor5-simple-image-upload-plugin: https://github.com/SamhammerAG/ckeditor5-simple-image-upload-plugin license: https://opensource.org/licenses/MIT </p>
+                <p>vue-context: https://github.com/rawilk/vue-context license: https://opensource.org/licenses/MIT </p>
 
 
             </div>
