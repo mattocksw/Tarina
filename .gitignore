@@ -110,7 +110,7 @@ files/
 
 obj/
 pyinstaller_dist/
-pyinstaller.bat
+*.bat
 
 #vuecli stuff
 .DS_Store
